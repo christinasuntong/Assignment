@@ -1,0 +1,281 @@
+---
+title: "Chapter3"
+author: "Tong Sun"
+date: "1/23/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+3.1
+
+From Table 3.4, the null hypothesis for “TV” is that with the “radio” and “newspaper” existing, “TV” advertising has no influence on sales. The null hypothesis for “radio” is that with the “TV” and “newspaper” existing, “radio” advertising has no effect on sales. And the null hypothesis for “newpaper” is that with the “TV” and “radio” existing, “newspaper” advertising does not affect sales. The low p-values of “TV” and “radio” suggest that we should reject the null hypothesises for “TV” and “radio” and the high p-value of “newspaper” suggests that we should accept the null hypothesis for “newspaper”.
+
+3.2
+
+The main difference is the fact tahta for the classifier approach, the algorithm assumes the outcome as the class of more presence, and on the regression approach the response is the average value of the nearest neighbors.
+
+3.5
+
+3.6
+
+3.11
+
+```{r}
+set.seed(1)
+x = rnorm(100)
+y = 2*x + rnorm(100)
+```
+
+
+```{r}
+###(a)
+fit1 = lm(y~x + 0)
+summary(fit1)
+```
+The p-value of t-statistic is almost zero so we should reject the null hypothesis.
+
+```{r}
+###(b)
+fit2 = lm(x ~ y + 0)
+summary(fit2)
+```
+The p-value of t-statistic is near zero so we should reject the null hypothesis.
+
+###(c)
+
+Both outcomes from (a) and (b) are the same thing. $ y = 2*x + \epsilon $ equals to $ x = 0.5 * (y - \epsilon) $.
+
+###(d)
+
+$$
+\begin{array}{cc}
+t = \beta / SE(\beta) &
+\beta = \frac {\sum{x_i y_i}}  {\sum{x_i^2}} &
+SE(\beta) = \sqrt{\frac {\sum{(y_i -x_i \beta)^2}} {(n-1) \sum{x_i^2}}}
+\end{array}
+\\
+t = {\frac {\sum{x_i y_i}} {\sum{x_i^2}}}
+    {\sqrt{\frac {(n-1) \sum{x_i^2}} {\sum{(y_i -x_i \beta)^2}}}}
+\\
+= \frac {\sqrt{n-1} \sum{x_i y_i}}
+      {\sqrt{\sum{x_i^2} \sum{(y_i^2 - 2 \beta x_i y_i + x_i^2 \beta^2)}}}
+\\
+= \frac {\sqrt{n-1} \sum{x_i y_i}}
+      {\sqrt{\sum{x_i^2} \sum{y_i^2} -
+            \sum{x_i y_i}  (2 \sum{x_i y_i} - \sum{x_i y_i})}}
+\\
+t = \frac {\sqrt{n-1} \sum{x_i y_i}}
+          {\sqrt{\sum{x_i^2} \sum{y_i^2} - (\sum{x_i y_i})^2 }}
+$$
+```{r}
+(sqrt(length(x)-1) * sum(x*y)) / (sqrt(sum(x*x) * sum(y*y) - (sum(x*y))^2))
+```
+
+###(e)
+
+Here we change y into x and x into y, the formula from (d) will not change any more.
+
+###(f)
+```{r}
+fit3 = lm(y~x)
+summary(fit3)
+fit4 = lm(x~y)
+summary(fit4)
+```
+The results of t-statistic are the same.
+
+3.12
+
+###(a)
+
+When the sum of the squares of the observed y are equal to the sum of the squares of the observed x, the coeffiences will be the same.
+
+###(b)
+```{r}
+set.seed(1)
+x = rnorm(100)
+y = 3*x
+fit5 = lm(y~x + 0)
+summary(fit5)
+fit6 = lm(x~y + 0)
+summary(fit6)
+```
+###(c)
+```{r}
+set.seed(1)
+x = rnorm(100)
+y = sample(x, 100)
+sum(x^2)
+sum(y^2) # make the sums of both squares are identical
+fit7 = lm(y ~ x + 0)
+summary(fit7)
+fit8 = lm(x ~ y + 0)
+summary(fit8)
+```
+3.13
+
+###(a)
+```{r}
+set.seed(1)
+x = rnorm(100)
+```
+
+###(b)
+```{r}
+eps = rnorm(100, 0, sqrt(0.25))
+```
+
+###(c)
+```{r}
+y = -1 + 0.5*x + eps
+```
+
+The length of y is 100. $\beta_0 $ is -1 and $\beta_1 $ is 0.5.
+
+###(d)
+```{r}
+plot(x,y)
+```
+There is a linear relationship between y and x with a positive slope.
+
+###(e)
+```{r}
+fit9 = lm(y~x)
+summary(fit9)
+```
+This model has a coefficient that is close to that we generated in (c), and the p-values are near zero so we could reject the null hypothesis.
+
+###(f)
+```{r}
+plot(x,y)
+abline(fit9, lwd = 2, col = 2)
+abline(-1, 0.5, lwd = 2, col = 3)
+legend(-1, legend = c("model fitting", "population"), col = 2:3, lwd = 2)
+```
+###(g)
+```{r}
+fit10 = lm(y ~ x + I(x^2))
+summary(fit10)
+```
+The model fitting is better after adding $x^2$ into the model because the $R^2$ increased slightly, but the $RSE$ decreased a little. The p-value of the t-statistic  is 0.164 which means there isn't any relationship between y and $x^2$.
+
+###(h)
+```{r} 
+set.seed(1)
+eps1 = rnorm(100, 0, 0.1)
+x1 = rnorm(100)
+y1 = -1 + 0.5*x1 + eps1
+plot(x1, y1)
+fit11 = lm(y1~x1)
+summary(fit11)
+abline(fit11, lwd = 2, col = 2)
+abline(-1, 0.5, lwd = 2, col = 3)
+legend(-1, legend = c("model fitting", "population"), col = 2:3, lwd = 2)
+```
+
+From the result, we can find that the $RSE$ decreases considerably, changing into 0.09.
+
+###(i)
+```{r}
+set.seed(1)
+eps2 = rnorm(100, 0, 0.5)
+x2 = rnorm(100)
+y2 = -1 + 0.5*x2 + eps2
+plot(x2, y2)
+fit12 = lm(y2~x2)
+summary(fit12)
+abline(fit12, lwd = 2, col = 2)
+abline(-1, 0.5, lwd = 2, col = 3)
+legend(-1, legend = c("model fitting", "population"), col = 2:3, lwd = 2)
+```
+
+The error observed in $R^2$ and $RSE$ increased considerably.
+
+###(j)
+```{r}
+confint(fit9)
+confint(fit11)
+confint(fit12)
+```
+
+The second and third fits' intervals are both narrower than the first fit's interval,although the third one is similar with the first one. All intervals seem to be centered on approximately 0.5.
+
+3.14
+
+###(a)
+```{r}
+set.seed(1)
+x1 <- runif(100)
+x2 <- 0.5 * x1 + rnorm(100) / 10
+y <- 2 + 2 * x1 + 0.3 * x2 + rnorm(100)
+```
+
+The regression coefficients are:
+$$
+Y = 2 + 2 *X_1 + 0.3 * X_2 + \epsilon \\
+\beta_0 = 2, \beta_1 =2, \beta_3 = 0.3
+$$
+###(b)
+```{r}
+cor(x1, x2)
+plot(x1, x2)
+```
+
+###(c)
+```{r}
+fit13 = lm(y~ x1 + x2)
+summary(fit13)
+```
+$$\beta_0 = 2.1305, \beta_1 = 1.4396, \beta_2 = 1.0097$$
+The regression coefficients are similar to the true values, but with some standard error. For the p-values of $\beta_0$ and $\beta_1$, they are both below 5%, so we should reject the null hypothesises for these two coefficients. However, for $\beta_2$, the p-value is 0.3754, much above 5% typical cutoff, we cannot reject the null hypothesis for this coefficient.
+
+###(d)
+```{r}
+fit14 = lm(y ~ x1)
+summary(fit14)
+```
+Yes, the null hypothesis for this regression coefficient can be rejected because the p-value for its t-statistic is close to zero.
+
+###(e)
+```{r}
+fit15 = lm(y ~ x2)
+summary(fit15)
+```
+
+Yes, we can reject the null hypothesis for this regression given the p-value for its t-statistic is near zero.
+
+###(f)
+
+No, it doesn't contradict. Because there is a linear relationship between x1 and x2, it's difficult to distinguish their influences on the model when using them to make regression at the same time. But when they are regressed separately, it is more clearly to see the relationship between y and each predictor.
+
+###(g)
+```{r}
+x1 = c(x1, 0.1)
+x2 = c(x2, 0.8)
+y = c(y, 6)
+fit16 = lm(y ~ x1 + x2)
+summary(fit16)
+fit17 = lm(y ~ x1)
+summary(fit17)
+fit18 = lm(y ~ x2)
+summary(fit18)
+```
+
+For the first regressed model that including x1 and x2, the coefficient of x1 is not significant but that of x2 is statistically significant.
+
+```{r}
+par(mfrow = c(2,2))
+plot(fit16)
+```
+```{r}
+par(mfrow=c(2,2))
+plot(fit17)
+```
+```{r}
+par(mfrow=c(2,2))
+plot(fit18)
+```
+From the leverage plot of these three models, we can say the second one -- the point does not become a high leverage point. And the first and third ones do.
