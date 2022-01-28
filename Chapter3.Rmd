@@ -15,9 +15,12 @@ From Table 3.4, the null hypothesis for “TV” is that with the “radio” an
 
 3.2
 
-The main difference is the fact tahta for the classifier approach, the algorithm assumes the outcome as the class of more presence, and on the regression approach the response is the average value of the nearest neighbors.
+The main difference is the fact that for the classifier approach, the algorithm assumes the outcome as the class of more presence, and on the regression approach the response is the average value of the nearest neighbors.
 
 3.5
+
+For the $i$th fitted value takes the form $y_i=X_i\beta$, where $\beta= \frac{\sum{x_i y_i}}{\sum{x_j^2}}$. And$y_i=\sum{a_j y_j}$. We have,$y_i= X_i\beta=X_i \frac{\sum{x_i y_i}}{\sum{x_j^2}}=\sum{\frac{x_j x_i}{\sum{x_k^2}}} y_j$
+Because variables' names do not matter inside of $\sum$, we have,$a_j= \frac{x_i x_j}{\sum{x_k^2}}$
 
 3.6
 
