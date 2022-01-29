@@ -9,23 +9,27 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-3.1
+#3.1
+Describe the null hypotheses to which the p-values given in Table 3.4 correspond. Explain what conclusions you can draw based on these p-values. Your explanation should be phrased in terms of sales, TV,radio, and newspaper, rather than in terms of the coefficients of the linear model.
 
-From Table 3.4, the null hypothesis for “TV” is that with the “radio” and “newspaper” existing, “TV” advertising has no influence on sales. The null hypothesis for “radio” is that with the “TV” and “newspaper” existing, “radio” advertising has no effect on sales. And the null hypothesis for “newpaper” is that with the “TV” and “radio” existing, “newspaper” advertising does not affect sales. The low p-values of “TV” and “radio” suggest that we should reject the null hypothesises for “TV” and “radio” and the high p-value of “newspaper” suggests that we should accept the null hypothesis for “newspaper”.
+From Table 3.4, the null hypothesis for “TV” is that with the “radio” and “newspaper” existing, “TV” advertising has no influence on sales. The null hypothesis for “radio” is that with the “TV” and “newspaper” existing, “radio” advertising has no effect on sales. And the null hypothesis for “newspaper” is that with the “TV” and “radio” existing, “newspaper” advertising does not affect sales. The low p-values of “TV” and “radio” suggest that we should reject the null hypothesis for “TV” and “radio” and the high p-value of “newspaper” suggests that we should accept the null hypothesis for “newspaper”.
 
-3.2
+#3.2
+Carefully explain the differences between the KNN classifier and KNN regression methods.
 
 The main difference is the fact that for the classifier approach, the algorithm assumes the outcome as the class of more presence, and on the regression approach the response is the average value of the nearest neighbors.
 
-3.5
+#3.5
+Consider the fitted values that result from performing linear regression without an intercept. In this setting, the $i$th fitted value takes the form $\hat y_i=x_i \hat \beta$, where $\hat \beta= \frac {\sum{x_i y_i}}{\sum{x_i^2}}$.Show that we can write $\hat y_i=\sum{a_j y_j}$. What is a_j?
+Note: We interpret this result by saying that the fitted values from linear regression are linear combinations of the response values.
 
 For the $i$th fitted value takes the form $y_i=X_i\beta$, where $\beta= \frac{\sum{x_i y_i}}{\sum{x_j^2}}$. And$y_i=\sum{a_j y_j}$. We have,$y_i= X_i\beta=X_i \frac{\sum{x_i y_i}}{\sum{x_j^2}}=\sum{\frac{x_j x_i}{\sum{x_k^2}}} y_j$
 Because variables' names do not matter inside of $\sum$, we have,$a_j= \frac{x_i x_j}{\sum{x_k^2}}$
 
-3.6
+#3.6
+Using (3.4), argue that in the case of simple linear regression, the least squares line always passes through the point $()$
 
-3.11
-
+#3.11
 ```{r}
 set.seed(1)
 x = rnorm(100)
@@ -90,7 +94,7 @@ summary(fit4)
 ```
 The results of t-statistic are the same.
 
-3.12
+#3.12
 
 ###(a)
 
@@ -118,7 +122,7 @@ summary(fit7)
 fit8 = lm(x ~ y + 0)
 summary(fit8)
 ```
-3.13
+#3.13
 
 ###(a)
 ```{r}
@@ -206,7 +210,7 @@ confint(fit12)
 
 The second and third fits' intervals are both narrower than the first fit's interval,although the third one is similar with the first one. All intervals seem to be centered on approximately 0.5.
 
-3.14
+#3.14
 
 ###(a)
 ```{r}
