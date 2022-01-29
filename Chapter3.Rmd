@@ -2,12 +2,15 @@
 title: "Chapter3"
 author: "Tong Sun"
 date: "1/23/2022"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,out.width="0.9\\linewidth",dev="pdf",fig.align  = 'center')
 ```
+
 
 #3.1
 Describe the null hypotheses to which the p-values given in Table 3.4 correspond. Explain what conclusions you can draw based on these p-values. Your explanation should be phrased in terms of sales, TV,radio, and newspaper, rather than in terms of the coefficients of the linear model.
@@ -23,29 +26,31 @@ The main difference is the fact that for the classifier approach, the algorithm 
 Consider the fitted values that result from performing linear regression without an intercept. In this setting, the $i$th fitted value takes the form $\hat y_i=x_i \hat \beta$, where $\hat \beta= \frac {\sum{x_i y_i}}{\sum{x_i^2}}$.Show that we can write $\hat y_i=\sum{a_j y_j}$. What is a_j?
 Note: We interpret this result by saying that the fitted values from linear regression are linear combinations of the response values.
 
-For the $i$th fitted value takes the form $y_i=X_i\beta$, where $\beta= \frac{\sum{x_i y_i}}{\sum{x_j^2}}$. And$y_i=\sum{a_j y_j}$. We have,$y_i= X_i\beta=X_i \frac{\sum{x_i y_i}}{\sum{x_j^2}}=\sum{\frac{x_j x_i}{\sum{x_k^2}}} y_j$
+For the $i$th fitted value takes the form $\hat y_i=X_i \hat \beta$, where $\hat \beta= \frac{\sum{x_i y_i}}{\sum{x_j^2}}$. And$\hat y_i=\sum{a_j y_j}$. We have,$\hat y_i= X_i \hat \beta=X_i \frac{\sum{x_i y_i}}{\sum{x_j^2}}=\sum{\frac{x_j x_i}{\sum{x_k^2}}} y_j$
 Because variables' names do not matter inside of $\sum$, we have,$a_j= \frac{x_i x_j}{\sum{x_k^2}}$
 
 #3.6
-Using (3.4), argue that in the case of simple linear regression, the least squares line always passes through the point $()$
+Using (3.4), argue that in the case of simple linear regression, the least squares line always passes through the point $(\bar x, \bar y)$
+
+We have equation1:$y=\beta_0+\beta_1 x$, and from (3.4), we got that equation2:$\hat \beta_0= \bar y-\hat \beta_1 \bar x$, also $\hat \beta_1= \frac {\sum{(x_i-\bar x)(y_i- \bar y)}}{\sum {(x_i- \bar x)^2}}$. So from equation1,we have, $0=\beta_0+\beta_1 x-y$. If $(\bar x,\bar y)$ is on the line, we have: $0=\beta_0+\beta_1 \bar x-\bar y$. Also from equation2, we have$\bar y=\beta_0+\beta_1 \bar x$. So, we get $0=\beta_0+\beta_1 \bar x-(\beta_0+\beta_1 \bar x)$, $0=0$, which makes sense.
+In this case, we have a conclusion that the least squares line always passes through $(\bar x,\bar y)$.
 
 #3.11
-```{r}
+```{r echo=FALSE}
 set.seed(1)
 x = rnorm(100)
 y = 2*x + rnorm(100)
 ```
 
-
-```{r}
 ###(a)
+```{r echo=FALSE}
 fit1 = lm(y~x + 0)
 summary(fit1)
 ```
 The p-value of t-statistic is almost zero so we should reject the null hypothesis.
 
-```{r}
 ###(b)
+```{r echo=FALSE}
 fit2 = lm(x ~ y + 0)
 summary(fit2)
 ```
@@ -53,31 +58,13 @@ The p-value of t-statistic is near zero so we should reject the null hypothesis.
 
 ###(c)
 
-Both outcomes from (a) and (b) are the same thing. $ y = 2*x + \epsilon $ equals to $ x = 0.5 * (y - \epsilon) $.
+Both outcomes from (a) and (b) are the same thing. $$y = 2*x + \epsilon $$ , which equals to,  $$x = 0.5 * (y - \epsilon) $$.
 
 ###(d)
 
-$$
-\begin{array}{cc}
-t = \beta / SE(\beta) &
-\beta = \frac {\sum{x_i y_i}}  {\sum{x_i^2}} &
-SE(\beta) = \sqrt{\frac {\sum{(y_i -x_i \beta)^2}} {(n-1) \sum{x_i^2}}}
-\end{array}
-\\
-t = {\frac {\sum{x_i y_i}} {\sum{x_i^2}}}
-    {\sqrt{\frac {(n-1) \sum{x_i^2}} {\sum{(y_i -x_i \beta)^2}}}}
-\\
-= \frac {\sqrt{n-1} \sum{x_i y_i}}
-      {\sqrt{\sum{x_i^2} \sum{(y_i^2 - 2 \beta x_i y_i + x_i^2 \beta^2)}}}
-\\
-= \frac {\sqrt{n-1} \sum{x_i y_i}}
-      {\sqrt{\sum{x_i^2} \sum{y_i^2} -
-            \sum{x_i y_i}  (2 \sum{x_i y_i} - \sum{x_i y_i})}}
-\\
-t = \frac {\sqrt{n-1} \sum{x_i y_i}}
-          {\sqrt{\sum{x_i^2} \sum{y_i^2} - (\sum{x_i y_i})^2 }}
-$$
-```{r}
+For the regression of Y onto X without an intercept, the t-statistic for $H_0: \beta =0$ takes the form $t = \beta / SE(\beta)$, where $\hat \beta$ is given by (3.38), and where$SE(\hat \beta) = \sqrt{\frac {\sum{(y_i -x_i \hat \beta)^2}} {(n-1) \sum{x_i^2}}}$. Firstly, show algebraically, the t-statistic can be written as $\frac {\sqrt{n-1} \sum{x_i y_i}}{\sqrt{\sum{x_i^2} \sum{(y_i^2 - 2 \beta x_i y_i + x_i^2 \beta^2)}}}$. We have $t = {\frac {\sum{x_i y_i}} {\sum{x_i^2}}} {\sqrt{\frac {(n-1) \sum{x_i^2}} {\sum{(y_i -x_i \beta)^2}}}}$, and$t = \frac {\sqrt{n-1} \sum{x_i y_i}}{\sqrt{\sum{x_i^2} \sum{(y_i^2 - 2 \beta x_i y_i + x_i^2 \beta^2)}}}$, next we get$t= \frac {\sqrt{n-1} \sum{x_i y_i}}{\sqrt{\sum{x_i^2} \sum{y_i^2} -\sum{x_i y_i}  (2 \sum{x_i y_i} - \sum{x_i y_i})}}$.
+
+```{r echo=FALSE}
 (sqrt(length(x)-1) * sum(x*y)) / (sqrt(sum(x*x) * sum(y*y) - (sum(x*y))^2))
 ```
 
@@ -86,7 +73,7 @@ $$
 Here we change y into x and x into y, the formula from (d) will not change any more.
 
 ###(f)
-```{r}
+```{r echo=FALSE}
 fit3 = lm(y~x)
 summary(fit3)
 fit4 = lm(x~y)
@@ -98,10 +85,10 @@ The results of t-statistic are the same.
 
 ###(a)
 
-When the sum of the squares of the observed y are equal to the sum of the squares of the observed x, the coeffiences will be the same.
+When the sum of the squares of the observed y are equal to the sum of the squares of the observed x, the coefficients will be the same.
 
 ###(b)
-```{r}
+```{r echo=FALSE}
 set.seed(1)
 x = rnorm(100)
 y = 3*x
@@ -110,8 +97,9 @@ summary(fit5)
 fit6 = lm(x~y + 0)
 summary(fit6)
 ```
+
 ###(c)
-```{r}
+```{r echo=FALSE}
 set.seed(1)
 x = rnorm(100)
 y = sample(x, 100)
@@ -125,52 +113,53 @@ summary(fit8)
 #3.13
 
 ###(a)
-```{r}
+```{r echo=FALSE}
 set.seed(1)
 x = rnorm(100)
 ```
 
 ###(b)
-```{r}
+```{r echo=FALSE}
 eps = rnorm(100, 0, sqrt(0.25))
 ```
 
 ###(c)
-```{r}
+```{r echo=FALSE}
 y = -1 + 0.5*x + eps
 ```
 
-The length of y is 100. $\beta_0 $ is -1 and $\beta_1 $ is 0.5.
+The length of y is 100. $$\beta_0= -1 $$,and $$\beta_1 = 0.5 $$.
 
 ###(d)
-```{r}
+```{r echo=FALSE}
 plot(x,y)
 ```
 There is a linear relationship between y and x with a positive slope.
 
 ###(e)
-```{r}
+```{r echo=FALSE}
 fit9 = lm(y~x)
 summary(fit9)
 ```
 This model has a coefficient that is close to that we generated in (c), and the p-values are near zero so we could reject the null hypothesis.
 
 ###(f)
-```{r}
+```{r echo=FALSE}
 plot(x,y)
 abline(fit9, lwd = 2, col = 2)
 abline(-1, 0.5, lwd = 2, col = 3)
 legend(-1, legend = c("model fitting", "population"), col = 2:3, lwd = 2)
 ```
 ###(g)
-```{r}
+```{r echo=FALSE}
 fit10 = lm(y ~ x + I(x^2))
 summary(fit10)
 ```
+
 The model fitting is better after adding $x^2$ into the model because the $R^2$ increased slightly, but the $RSE$ decreased a little. The p-value of the t-statistic  is 0.164 which means there isn't any relationship between y and $x^2$.
 
 ###(h)
-```{r} 
+```{r echo=FALSE} 
 set.seed(1)
 eps1 = rnorm(100, 0, 0.1)
 x1 = rnorm(100)
@@ -186,7 +175,7 @@ legend(-1, legend = c("model fitting", "population"), col = 2:3, lwd = 2)
 From the result, we can find that the $RSE$ decreases considerably, changing into 0.09.
 
 ###(i)
-```{r}
+```{r echo=FALSE}
 set.seed(1)
 eps2 = rnorm(100, 0, 0.5)
 x2 = rnorm(100)
@@ -202,7 +191,7 @@ legend(-1, legend = c("model fitting", "population"), col = 2:3, lwd = 2)
 The error observed in $R^2$ and $RSE$ increased considerably.
 
 ###(j)
-```{r}
+```{r echo=FALSE}
 confint(fit9)
 confint(fit11)
 confint(fit12)
@@ -213,7 +202,7 @@ The second and third fits' intervals are both narrower than the first fit's inte
 #3.14
 
 ###(a)
-```{r}
+```{r echo=FALSE}
 set.seed(1)
 x1 <- runif(100)
 x2 <- 0.5 * x1 + rnorm(100) / 10
@@ -221,33 +210,33 @@ y <- 2 + 2 * x1 + 0.3 * x2 + rnorm(100)
 ```
 
 The regression coefficients are:
-$$
-Y = 2 + 2 *X_1 + 0.3 * X_2 + \epsilon \\
-\beta_0 = 2, \beta_1 =2, \beta_3 = 0.3
-$$
+$\beta_0 = 2, \beta_1 =2, \beta_3 = 0.3$
+
 ###(b)
-```{r}
+```{r echo=FALSE}
 cor(x1, x2)
 plot(x1, x2)
 ```
 
 ###(c)
-```{r}
+```{r echo=FALSE}
 fit13 = lm(y~ x1 + x2)
 summary(fit13)
 ```
-$$\beta_0 = 2.1305, \beta_1 = 1.4396, \beta_2 = 1.0097$$
-The regression coefficients are similar to the true values, but with some standard error. For the p-values of $\beta_0$ and $\beta_1$, they are both below 5%, so we should reject the null hypothesises for these two coefficients. However, for $\beta_2$, the p-value is 0.3754, much above 5% typical cutoff, we cannot reject the null hypothesis for this coefficient.
+
+$\beta_0 = 2.1305, \beta_1 = 1.4396, \beta_2 = 1.0097$
+
+The regression coefficients are similar to the true values, but with some standard error. For the p-values of $\beta_0$ and $\beta_1$, they are both below 5%, so we should reject the null hypothesis for these two coefficients. However, for $\beta_2$, the p-value is 0.3754, much above 5% typical cutoff, we cannot reject the null hypothesis for this coefficient.
 
 ###(d)
-```{r}
+```{r echo=FALSE}
 fit14 = lm(y ~ x1)
 summary(fit14)
 ```
 Yes, the null hypothesis for this regression coefficient can be rejected because the p-value for its t-statistic is close to zero.
 
 ###(e)
-```{r}
+```{r echo=FALSE}
 fit15 = lm(y ~ x2)
 summary(fit15)
 ```
@@ -259,7 +248,7 @@ Yes, we can reject the null hypothesis for this regression given the p-value for
 No, it doesn't contradict. Because there is a linear relationship between x1 and x2, it's difficult to distinguish their influences on the model when using them to make regression at the same time. But when they are regressed separately, it is more clearly to see the relationship between y and each predictor.
 
 ###(g)
-```{r}
+```{r echo=FALSE}
 x1 = c(x1, 0.1)
 x2 = c(x2, 0.8)
 y = c(y, 6)
@@ -273,15 +262,15 @@ summary(fit18)
 
 For the first regressed model that including x1 and x2, the coefficient of x1 is not significant but that of x2 is statistically significant.
 
-```{r}
+```{r echo=FALSE}
 par(mfrow = c(2,2))
 plot(fit16)
 ```
-```{r}
+```{r echo=FALSE}
 par(mfrow=c(2,2))
 plot(fit17)
 ```
-```{r}
+```{r echo=FALSE}
 par(mfrow=c(2,2))
 plot(fit18)
 ```
