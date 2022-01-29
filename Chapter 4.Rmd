@@ -84,22 +84,30 @@ $$
 \frac{P(X)}{1-P(X)}= \frac{0.16}{1-0.16}=0.19
 $$
 The odds that she will default is 19% if she has a 16% chance of defaulting on her credit card payment.
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+##4.13
+This question should be answered using the Weekly data set, which is part of the ISLR2 package. This data is similar in nature to the Smarket data from this chapter’s lab, except that it contains 1, 089 weekly returns for 21 years, from the beginning of 1990 to the end of 2010.
+###(a)
+Produce some numerical and graphical summaries of the Weekly data. Do there appear to be any patterns?
+```{r}
+library(ISLR2)
+summary(Weekly)
+cor(Weekly[, -9])
+plot(Weekly$Volume)
 ```
+Looking at the correlations table, I find the correlations between "lag" variables and "today" are almost zero, which means there are not too much significant relationship between these variables. But the correlation between "Volume" and "Year" is obvious, 0.84.When I plot "Volume", I find it is the fact that "Volume" increase over time.
 
-## Including Plots
+###(b)
+Use the full data set to perform a logistic regression with Direction as the response and the five lag variables plus Volume as predictors. Use the summary function to print the results. Do any of the predictors appear to be statistically significant? If so, which ones?
 
-You can also embed plots, for example:
+###(c)
+Compute the confusion matrix and overall fraction of correct predictions. Explain what the confusion matrix is telling you about the types of mistakes made by logistic regression.
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+###(d)
+Now fit the logistic regression model using a training data period from 1990 to 2008, with Lag2 as the only predictor. Compute the confusion matrix and the overall fraction of correct predictions for the held out data (that is, the data from 2009 and 2010).
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+##4.14
+
+##4.15
+
+##4.16
