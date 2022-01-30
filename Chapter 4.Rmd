@@ -153,12 +153,36 @@ In this case, we may conclude that the percentage of correct predictions on the 
 
 ###(f)
 Repeat (d) using QDA.
+```{r}
+fit4 <- qda(Weekly$Direction ~ Lag2, data = Weekly, subset = train)
+fit4
+```
+```{r}
+pred.fit4 <-predict(fit4, weekly.2009)
+table(pred.fit4$class, direction.2009)
+```
+
+In this case , the total number of observations is $0+0+43+61=104$, so we may conclude that the percentage of correct prediction the test data is $\frac {61}{104}=58.65 \%$. In other words 41.35% is the test error rate. We could also say that for weeks when the market goes up, the model is right 100% of the time. For weeks when the market goes down, the model is right 0% of the time. Also, the confusion matrix shows that on days when QDA predicts an increase in the market, it  achieves a correctness of 58.65%. This suggests that the quadratic form assumed by QDA may capture the true relationship more accurately than the linear forms assumed by LDA and logistic regression.
 
 ###(g)
 Repeat (d) using KNN with K = 1.
+```{r}
+library(class)
+train.X <- as.matrix(Weekly$Lag2[train])
+test.X <- as.matrix(Weekly$Lag2[!train])
+train.direction <-Weekly$Direction[train]
+set.seed(1)
+knn.pred <- knn(train.X, test.X, train.direction, k = 1)
+table(knn.pred, direction.2009)
+```
+
+From the table above, we find that the total number of observations is $21+30+22+31=104$, so we may conclude that the percentage of correct predictions on the test data is $\frac {21+31}{104}=50 \%$. In other words 50% is the test error rate. We could also asy that for weeks when the market goes up, the model is right 50.82% of the time. For weeks when the market goes down, the model is right only 48.84% of the time.
 
 ###(h)
 Repeat (d) using naive Bayes.
+```{r}
+
+```
 
 ###(i)
 Which of these methods appears to provide the best results on this data?
