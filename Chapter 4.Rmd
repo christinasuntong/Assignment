@@ -181,36 +181,145 @@ From the table above, we find that the total number of observations is $21+30+22
 ###(h)
 Repeat (d) using naive Bayes.
 ```{r}
-
+library(e1071)
+fit5 <- naiveBayes(Weekly$Direction ~ Lag2, data = Weekly, subset = train)
+fit5
 ```
+The output contains the estimated mean and standard deviation for each variable in each class. The mean for "Lag2" is -0.0357 for "Direction=Down", and the standard deviation is 2.1995.
+```{r}
+nb.class <- predict(fit5, weekly.2009)
+table(nb.class, direction.2009)
+mean(nb.class == direction.2009)
+```
+Naive Bayes performs very well on this data, with accurate predictions over 58% of the time. This is better than LDA, but similar as QDA.
 
 ###(i)
 Which of these methods appears to provide the best results on this data?
 
+If we compare the test error rates, we see that logistic regression and LDA have the minimum error rates, followed by QDA, Naive Bayes and KNN.
+
 ###(j)
 Experiment with different combinations of predictors, including possible transformations and interactions, for each of the methods. Report the variables, method, and associated confusion matrix that appears to provide the best results on the held out data. Note that you should also experiment with values for K in the KNN classifier.
+```{r}
+# Logistic regression with Lag2:Lag1
+glm.fit <- glm(Weekly$Direction~ Lag2:Lag1, data = Weekly, family = binomial, subset = train)
+glm.probs <-predict(glm.fit, weekly.2009, type = "response")
+glm.pred <- rep("Down", length(glm.probs))
+glm.pred[glm.probs > 0.5] = "Up"
+table(glm.pred, direction.2009)
+mean(glm.pred == direction.2009)
 
+# LDA with Lag2:Lag1
+lda.fit <- lda(Weekly$Direction ~ Lag2:Lag1, data = Weekly, subset = train)
+lda.pred <- predict(lda.fit, weekly.2009)
+mean(lda.pred$class == direction.2009)
+
+# QDA with sqrt(abs(Lag2))
+qda.fit <- qda(Weekly$Direction ~ Lag2 + sqrt(abs(Lag2)), data = Weekly, subset = train)
+qda.class <- predict(qda.fit, weekly.2009) $ class
+table(qda.class, direction.2009)
+mean(qda.class == direction.2009)
+
+# KNN k=10
+knn.pred1 <-knn(train.X, test.X, train.direction, k = 10)
+table(knn.pred1, direction.2009)
+mean(knn.pred1 == direction.2009)
+
+# KNN k=100
+knn.pred2 <-knn(train.X, test.X, train.direction, k = 100)
+table(knn.pred2, direction.2009)
+mean(knn.pred2 == direction.2009)
+```
+
+From all of these pemutations above, the original LDA and logistic regression have better performance in terms of their test error rates.
 
 ##4.14
 In this problem, you will develop a model to predict whether a given car gets high or low gas mileage based on the Auto data set.
 
 ###(a)
 Create a binary variable, mpg01, that contains a 1 if mpg contains a value above its median, and a 0 if mpg contains a value below its median. You can compute the median using the median() function. Note you may find it helpful to use the data.frame() function to create a single data set containing both mpg01 and the other Auto variables.
+```{r}
+attach(Auto)
+mpg01 <- rep(0, length(mpg))
+mpg01[mpg > median(mpg)] <- 1
+Auto <-data.frame(Auto, mpg01)
+```
+
 
 ###(b)
 Explore the data graphically in order to investigate the association between mpg01 and the other features. Which of the other features seem most likely to be useful in predicting mpg01? Scatterplots and boxplots may be useful tools to answer this question. Describe your findings.
+```{r}
+cor(Auto[, -9])
+```
+```{r}
+pairs(Auto)
+```
+```{r}
+boxplot(cylinders ~ mpg01, data = Auto, main = "Cylinders vs mpg01")
+```
+
+```{r}
+boxplot(displacement ~ mpg01, data = Auto, main = "Displacement vs mpg01")
+```
+
+```{r}
+boxplot(horsepower ~ mpg01, data = Auto, main = "Horsepower vs mpg01")
+```
+
+```{r}
+boxplot(weight ~ mpg01, data = Auto, main = "Weight vs mpg01")
+```
+
+```{r}
+boxplot(acceleration ~ mpg01, data = Auto, main = "Acceleration vs mpg01")
+```
+
+```{r}
+boxplot(year ~ mpg01, data = Auto, main = "Year vs mpg01")
+```
+We may conclude that there exists some association between "mpg01" and "cylinders", "weight", "displacement" and "horsepower".
 
 ###(c)
 Split the data into a training set and a test set.
+```{r}
+train <-(year %% 2 == 0)
+Auto.train <- Auto[train, ]
+Auto.test <- Auto[!train, ]
+mpg01.test <- mpg01[!train]
+```
 
 ###(d)
 Perform LDA on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
+```{r}
+fit.lda <- lda(mpg01 ~ cylinders + weight + displacement + horsepower, data = Auto, subset = train)
+fit.lda
+```
+```{r}
+pred.lda <-predict(fit.lda, Auto.test)
+table(pred.lda$class, mpg01.test)
+mean(pred.lda$class !=mpg01.test)
+```
+From the table, we find that the total number of observations is $86+9+14+73=182$, so the test error rate should be $\frac {14+9}{182}=12.637 \%$, which can be confirmed by mean function.
 
 ###(e)
 Perform QDA on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
+```{r}
+fit.qda<-qda(mpg01 ~ cylinders + weight + displacement + horsepower, data = Auto, subset = train)
+fit.qda
+```
+```{r}
+pred.qda <- predict(fit.qda, Auto.test)
+table(pred.qda$class, mpg01.test)
+mean(pred.qda$class != mpg01.test)
+```
+The same as LDA, here we may conclude that we have a test error rate of 13.187%.
 
 ###(f)
 Perform logistic regression on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
+```{r}
+
+```
+
 
 ###(g)
 Perform naive Bayes on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
