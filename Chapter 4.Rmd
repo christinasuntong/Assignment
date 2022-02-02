@@ -401,13 +401,77 @@ Power3 <- function(x, a){
 ```
 
 ###(e)
-Now using the Power3() function, create a plot of f(x) = x2.
-The x-axis should display a range of integers from 1 to 10, and
-the y-axis should display x2. Label the axes appropriately, and
-use an appropriate title for the figure. Consider displaying either
-the x-axis, the y-axis, or both on the log-scale. You can do this
-by using log = "x", log = "y", or log = "xy" as arguments to
-the plot() function.
+Now using the Power3() function, create a plot of f(x) = x^2. The x-axis should display a range of integers from 1 to 10, and the y-axis should display x^2. Label the axes appropriately, and use an appropriate title for the figure. Consider displaying either the x-axis, the y-axis, or both on the log-scale. You can do this
+by using log = "x",log = "y",or log = "xy" as arguments to the plot() function.
+```{r}
+x<- 1: 10
+plot(x, Power3(x, 2), log = "xy", xlab = "Log of x", ylab = "Log of x^2", main = "Log of x^2 vs Log of x")
+```
+
 ###(f)
+Create a function, PlotPower(), that allows you to create a plot of x against x^a for a fixed a and for a range of values of x.
+```{r}
+PlotPower <- function(x, a){
+  plot(x, Power3(x, a))
+}
+PlotPower(1:10, 3)
+```
 
 ##4.16
+Using the Boston data set, fit classification models in order to predict whether a given census tract has a crime rate above or below the median. Explore logistic regression, LDA, naive Bayes, and KNN models using various subsets of the predictors. Describe your findings.
+Hint: You will have to create the response variable yourself, using the variables that are contained in the Boston data set.
+```{r}
+library(MASS)
+attach(Boston)
+crim01 <- rep(0, length(crim))
+crim01[crim > median(crim)] <- 1
+Boston<-data.frame(Boston, crim01)
+
+train <- 1:(length(crim) / 2)
+test <- (length(crim) /2 + 1):length(crim)
+Boston.train <- Boston[train, ]
+Boston.test <- Boston[test, ]
+crim01.test <- crim01[test]
+```
+
+### Logistic Regression
+```{r}
+fit.glm <- glm(crim01 ~ . - crim01 - crim, data = Boston, family = binomial, subset = train)
+probs <- predict(fit.glm, Boston.test, type = "response")
+pred.glm <- rep(0, length(probs))
+pred.glm[probs > 0.5] <- 1
+table(pred.glm, crim01.test)
+mean(pred.glm != crim01.test)
+```
+The number of total observations above is $68+24+22+139=253$, so the test error rate is $\frac {24+22}{253}=18.18\%$, which can be concluded by the mean function.
+
+### LDA
+```{r}
+fit.lda <- lda(crim01 ~ . - crim01 -crim, data = Boston, subset = train)
+pred.lda <- predict(fit.lda, Boston.test)
+table(pred.lda$class, crim01.test)
+mean(pred.lda$class != crim01.test)
+```
+For the LDA method, the test error rate here is 13.44%.
+
+### Naive Bayes
+### KNN Models
+```{r}
+train.X<- cbind(zn, indus, chas, nox, rm, age, dis, rad, tax, ptratio, black, lstat, medv)[train, ]
+test.X <- cbind(zn, indus, chas, nox, rm, age, dis, rad, tax, ptratio, black, lstat, medv)[test, ]
+train.crim01 <- crim01[train]
+set.seed(1)
+## K=1
+pred.knn<-knn(train.X, test.X, train.crim01, k=1)
+table(pred.knn, crim01.test)
+mean(pred.knn !=crim01.test)
+## K=10
+pred.knn<-knn(train.X, test.X, train.crim01, k=10)
+table(pred.knn, crim01.test)
+mean(pred.knn !=crim01.test)
+## K=100
+pred.knn<-knn(train.X, test.X, train.crim01, k=100)
+table(pred.knn, crim01.test)
+mean(pred.knn !=crim01.test)
+```
+
