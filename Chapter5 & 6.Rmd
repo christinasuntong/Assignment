@@ -1,0 +1,50 @@
+---
+title: "Chapter 5 & 6"
+author: "Tong Sun"
+date: "2/2/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## 5.8
+We will now perform cross-validation on a simulated data set.
+###(a)
+Generate a simulated data set as follows. In this data set, what is n and what is p? Write out the model used to generate the data in equation form.
+```{r}
+set.seed(1)
+y <- rnorm(100)
+x <- rnorm(100)
+y <- x - 2 * x^2 + rnorm(100)
+```
+Here we have that n = 100 and p = 2, the model used is $Y = X - 2X^2 + \epsilon$.
+
+###(b)
+Create a scatterplot of X against Y. Comment on what you find.
+```{r}
+plot(x, y)
+```
+I find that the data obviously holds a curved relationship.
+
+###(c)
+Set a random seed, and then compute the LOOCV errors that result from fitting the following four models using least squares:
+i. Y = β0 + β1X + ϵ
+```{r}
+library(boot)
+set.seed(1)
+Data <- data.frame(x, y)
+fit.glm.1 <- glm(y ~ x)
+cv.glm(Data, fit.glm.1) $ delta[1]
+```
+
+
+ii. Y = β0 + β1X + β2X2 + ϵ
+iii. Y = β0 + β1X + β2X2 + β3X3 + ϵ
+iv. Y = β0 + β1X + β2X2 + β3X3 + β4X4 + ϵ.
+Note you may find it helpful to use the data.frame() function to create a single data set containing both X and Y .
+
+
+###(d)
+###(e)
+###(f)
