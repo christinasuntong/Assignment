@@ -331,6 +331,16 @@ The number of total observations here is $89+11+11+71=182$, so the test error sh
 
 ###(g)
 Perform naive Bayes on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
+```{r}
+fit.naive<- naiveBayes(mpg01 ~ cylinders + weight + displacement + horsepower, data = Auto, subset = train)
+fit.naive
+```
+```{r}
+nb.probs <- predict(fit.naive, Auto.test)
+table(nb.probs, mpg01.test)
+mean(nb.probs == mpg01.test)
+```
+Naive Bayes performs very well on this data, with accurate predictions about 87.36% of this time.
 
 ###(h)
 Perform KNN on the training data, with several values of K, in order to predict mpg01. Use only the variables that seemed most associated with mpg01 in (b). What test errors do you obtain? Which value of K seems to perform the best on this data set?
@@ -436,14 +446,22 @@ crim01.test <- crim01[test]
 
 ### Logistic Regression
 ```{r}
-fit.glm <- glm(crim01 ~ . - crim01 - crim, data = Boston, family = binomial, subset = train)
-probs <- predict(fit.glm, Boston.test, type = "response")
-pred.glm <- rep(0, length(probs))
-pred.glm[probs > 0.5] <- 1
-table(pred.glm, crim01.test)
-mean(pred.glm != crim01.test)
+fit.glm1 <- glm(crim01 ~ . - crim01 - crim, data = Boston, family = binomial, subset = train)
+probs1 <- predict(fit.glm1, Boston.test, type = "response")
+pred.glm1 <- rep(0, length(probs1))
+pred.glm1[probs1 > 0.5] <- 1
+table(pred.glm1, crim01.test)
+mean(pred.glm1 != crim01.test)
 ```
 The number of total observations above is $68+24+22+139=253$, so the test error rate is $\frac {24+22}{253}=18.18\%$, which can be concluded by the mean function.
+```{r}
+fit.glm <- glm(crim01 ~ . - crim01 -crim - chas - nox, data = Boston, family = binomial, subset = train)
+probs <-predict(fit.glm, Boston.test, type = "response")
+pred.glm <-rep(0, length(probs))
+pred.glm[probs > 0.5] <- 1
+table(pred.glm, crim01.test)
+```
+
 
 ### LDA
 ```{r}
