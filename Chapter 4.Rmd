@@ -11,27 +11,21 @@ output:
 knitr::opts_chunk$set(echo = TRUE,out.width="0.9\\linewidth",dev="pdf",fig.align  = 'center')
 ```
 
-required:4.6 4.8 4.9 4.13 4.14 4.15 4.16
-optional:
 
 ##4.6 
-Suppose we collect data for a group of students in a statistics class with variables X1 = hours studied, X2 = undergrad GPA, and Y = receive an A. We fit a logistic regression and produce estimated coefficient, βˆ0 = −6, βˆ1 = 0.05, βˆ2 = 1.
+Suppose we collect data for a group of students in a statistics class with variables X1 = hours studied, X2 = undergrad GPA, and Y = receive an A. We fit a logistic regression and produce estimated coefficient, $\beta_0$ = -6, $\beta_1$ = 0.05, $\beta_2$ = 1.
 
 ###(a)
-Estimate the probability that a student who studies for 40 h and has an undergrad GPA of 3.5 gets an A in the class.
+Estimate the probability that a student who studies for 40h and has an undergrad GPA of 3.5 gets an A in the class.
 
 Here we have $X_1 = 40$ , $X_2 = 3.5$ and we have the equation for predicted probability is $Y = -6 + 0.05*X_1 + X_2$. Plugging the predictors' values in the equation we get:
 
-$$
-P(X) = \frac {e^{-6+0.05*X_1+X_2}}
-             {1+e^{-6+0.05*X_1+X_2}}
-    = 0.3775
+$P(X) = \frac{e^{-6+0.05*X_1+X_2}}{1+e^{-6+0.05*X_1+X_2}}= 0.3775$
         
-$$
 So the probability that a student who studies for 40h and has an undergrad GPA of 3.5 gets an A in the class was 0.3775.
 
 ###(b)
-How many hours would the student in part (a) need to study to have a 50 % chance of getting an A in the class?
+How many hours would the student in part (a) need to study to have a 50% chance of getting an A in the class?
 
 The equation for predicted probability tells us that:
 $$
@@ -50,15 +44,13 @@ $$
 We can make the conclusion that the student in part (a) need to study 50 hours in order to have a 50% chance of getting an A in the class.
 
 ##4.8
-Suppose that we take a data set, divide it into equally-sized training
-and test sets, and then try out two different classification procedures.First we use logistic regression and get an error rate of 20% on the training data and 30% on the test data. Next we use 1-nearest neighbors (i.e. K=1
-) and get an average error rate (averaged over both test and training data sets) of 18%. Based on these results, which method should we prefer to use for classification of new observations ? Why ?
+Suppose that we take a data set, divide it into equally-sized training and test sets, and then try out two different classification procedures.First we use logistic regression and get an error rate of 20% on the training data and 30% on the test data. Next we use 1-nearest neighbors and get an average error rate (averaged over both test and training data sets) of 18%. Based on these results, which method should we prefer to use for classification of new observations? Why ?
 
 We have:
 Logistic Regression: 20% training error rate, 30% test error rate
 KNN(K=1): 18% average error rate
 
-The nearest neighbor of any training observation should be the observation itself, so for KNN with K=1, the training error rate is zero.In this situation, the test error rate will be 36% in order to make the average error rate is 18%. As a result, I wil choose logistic regression so that the test error rate will be lower.
+The nearest neighbor of any training observation should be the observation itself, so for KNN with K=1, the training error rate is zero.In this situation, the test error rate will be 36% in order to make the average error rate is 18%. As a result, I will choose logistic regression so that the test error rate will be lower.
 
 ##4.9 
 This problem has to do with odds.
@@ -71,10 +63,10 @@ $$
 \\
 P(X)= \frac{0.37}{1+0.37} = 0.27
 $$
-We can make the conclusion: on average , a fraction of 27% of people defaulting on their credit card payment.
+We can make the conclusion: on average, a fraction of 27% of people defaulting on their credit card payment.
 
 ###(b)
-Suppose that an individual has a 16 % chance of defaulting on her credit card payment. What are the odds that she will default?
+Suppose that an individual has a 16% chance of defaulting on her credit card payment. What are the odds that she will default?
 
 We have $P(X)=0.16$, so:
 $$
@@ -84,11 +76,11 @@ The odds that she will default is 19% if she has a 16% chance of defaulting on h
 
 ##4.13
 
-This question should be answered using the Weekly data set, which is part of the ISLR2 package. This data is similar in nature to the Smarket data from this chapter’s lab, except that it contains 1,089x weekly returns for 21 years, from the beginning of 1990 to the end of 2010.
+This question should be answered using the Weekly data set, which is part of the ISLR2 package.This data is similar in nature to the Smarket data from this chapter’s lab, except that it contains 1,089 weekly returns for 21 years, from the beginning of 1990 to the end of 2010.
 
 ###(a)
 Produce some numerical and graphical summaries of the Weekly data. Do there appear to be any patterns?
-```{r}
+```{r echo=FALSE}
 library(ISLR2)
 summary(Weekly)
 cor(Weekly[, -9])
@@ -99,16 +91,16 @@ Looking at the correlations table, I find the correlations between "lag" variabl
 ###(b)
 Use the full data set to perform a logistic regression with Direction as the response and the five lag variables plus Volume as predictors. Use the summary function to print the results. Do any of the predictors appear to be statistically significant? If so, which ones?
 
-```{r}
+```{r echo=FALSE}
 fit1<-glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = Weekly, family = binomial)
 summary(fit1)
 ```
-From the results showed above, I find that only the p-value of predictor "Lag2" is 0.0296 -- less than 0.05. So "Lag2" is the only predictor statistically significant.
+From the results showed above, I find that only the p-value of predictor "Lag2" is 0.0296, less than 0.05. So "Lag2" is the only predictor statistically significant.
 
 ###(c)
 Compute the confusion matrix and overall fraction of correct predictions. Explain what the confusion matrix is telling you about the types of mistakes made by logistic regression.
 
-```{r}
+```{r echo=FALSE}
 probs1 <- predict(fit1, type = "response")
 pred.fit1 <- rep("Down", length(probs1))
 pred.fit1[probs1 > 0.5] <- "Up"
@@ -120,7 +112,7 @@ Given the predictions, the last command produces a confusion matrix in order to 
 ###(d)
 Now fit the logistic regression model using a training data period from 1990 to 2008, with Lag2 as the only predictor. Compute the confusion matrix and the overall fraction of correct predictions for the held out data (that is, the data from 2009 and 2010).
 
-```{r}
+```{r echo=FALSE}
 train <- (Weekly$Year < 2009)
 weekly.2009 <- Weekly[!train, ]
 direction.2009 <-Weekly$Direction[!train]
@@ -128,23 +120,23 @@ fit2<-glm(Weekly$Direction~Lag2, data = Weekly, family = binomial, subset = trai
 summary(fit2)
 ```
 
-```{r}
+```{r echo=FALSE}
 probs2 <- predict(fit2, weekly.2009, type = "response")
 pred.fit2 <-rep("Down", length(probs2))
 pred.fit2[probs2 > 0.5] <-"Up"
 table(pred.fit2, direction.2009)
 ```
-In this situation, the total number of observations is $9+5+34+56=104$. So we can conclude that the percentage of correct predictions on the test data is $\frac {9+56} {104}= 62.5 \%$, which equals to a 37.5% test error rate. The model correctly predicted that the market would go up on 56 days and it would go down on 9 days, for a total of $56+9=65$ correct predictions. Also, the confusion matrix shows that on days when logistic regression predicts an increase in the market, it has a $\frac {56}{34+56}=62.2 \%$ accuracy rate. This suggests a possible trading strategy of buying on days when the model predicts an increase market, and avoiding trades on days when a decrease is predicted. We could also say that for weeks when the market goes up, the model is right $ \frac{56}{56+5}=91.80\%$ of the time. For weeks when the market goes down, the model is right only $\frac {9}{9+34}=20.93\%$ of the time.
+In this situation, the total number of observations is $9+5+34+56=104$. So we can conclude that the percentage of correct predictions on the test data is $\frac {9+56} {104}= 62.5 \%$, which equals to a 37.5% test error rate. The model correctly predicted that the market would go up on 56 days and it would go down on 9 days, for a total of $56+9=65$ correct predictions. Also, the confusion matrix shows that on days when logistic regression predicts an increase in the market, it has a $\frac {56}{34+56}=62.2 \%$ accuracy rate. This suggests a possible trading strategy of buying on days when the model predicts an increase market, and avoiding trades on days when a decrease is predicted. We could also say that for weeks when the market goes up, the model is right $\frac{56}{56+5}=91.80 \%$ of the time. For weeks when the market goes down, the model is right only $\frac{9}{9+34}=20.93 \%$ of the time.
 
 ###(e)
 Repeat (d) using LDA.
-```{r}
+```{r echo=FALSE}
 library(MASS)
 fit3<-lda(Weekly$Direction ~ Lag2, data = Weekly, subset = train)
 fit3
 ```
 
-```{r}
+```{r echo=FALSE}
 pred.fit3 <- predict(fit3, weekly.2009)
 table(pred.fit3$class, direction.2009)
 ```
@@ -153,20 +145,20 @@ In this case, we may conclude that the percentage of correct predictions on the 
 
 ###(f)
 Repeat (d) using QDA.
-```{r}
+```{r echo=FALSE}
 fit4 <- qda(Weekly$Direction ~ Lag2, data = Weekly, subset = train)
 fit4
 ```
-```{r}
+```{r echo=FALSE}
 pred.fit4 <-predict(fit4, weekly.2009)
 table(pred.fit4$class, direction.2009)
 ```
 
-In this case , the total number of observations is $0+0+43+61=104$, so we may conclude that the percentage of correct prediction the test data is $\frac {61}{104}=58.65 \%$. In other words 41.35% is the test error rate. We could also say that for weeks when the market goes up, the model is right 100% of the time. For weeks when the market goes down, the model is right 0% of the time. Also, the confusion matrix shows that on days when QDA predicts an increase in the market, it  achieves a correctness of 58.65%. This suggests that the quadratic form assumed by QDA may capture the true relationship more accurately than the linear forms assumed by LDA and logistic regression.
+In this case, the total number of observations is $0+0+43+61=104$, so we may conclude that the percentage of correct prediction the test data is $\frac {61}{104}=58.65 \%$. In other words 41.35% is the test error rate. We could also say that for weeks when the market goes up, the model is right 100% of the time. For weeks when the market goes down, the model is right 0% of the time. Also, the confusion matrix shows that on days when QDA predicts an increase in the market, it  achieves a correctness of 58.65%. This suggests that the quadratic form assumed by QDA may capture the true relationship more accurately than the linear forms assumed by LDA and logistic regression.
 
 ###(g)
 Repeat (d) using KNN with K = 1.
-```{r}
+```{r echo=FALSE}
 library(class)
 train.X <- as.matrix(Weekly$Lag2[train])
 test.X <- as.matrix(Weekly$Lag2[!train])
@@ -176,17 +168,17 @@ knn.pred <- knn(train.X, test.X, train.direction, k = 1)
 table(knn.pred, direction.2009)
 ```
 
-From the table above, we find that the total number of observations is $21+30+22+31=104$, so we may conclude that the percentage of correct predictions on the test data is $\frac {21+31}{104}=50 \%$. In other words 50% is the test error rate. We could also asy that for weeks when the market goes up, the model is right 50.82% of the time. For weeks when the market goes down, the model is right only 48.84% of the time.
+From the table above, we find that the total number of observations is $21+30+22+31=104$, so we may conclude that the percentage of correct predictions on the test data is $\frac {21+31}{104}=50 \%$. In other words 50% is the test error rate. We could also say that for weeks when the market goes up, the model is right 50.82% of the time. For weeks when the market goes down, the model is right only 48.84% of the time.
 
 ###(h)
 Repeat (d) using naive Bayes.
-```{r}
+```{r echo=FALSE}
 library(e1071)
 fit5 <- naiveBayes(Weekly$Direction ~ Lag2, data = Weekly, subset = train)
 fit5
 ```
 The output contains the estimated mean and standard deviation for each variable in each class. The mean for "Lag2" is -0.0357 for "Direction=Down", and the standard deviation is 2.1995.
-```{r}
+```{r echo=FALSE}
 nb.class <- predict(fit5, weekly.2009)
 table(nb.class, direction.2009)
 mean(nb.class == direction.2009)
@@ -200,7 +192,7 @@ If we compare the test error rates, we see that logistic regression and LDA have
 
 ###(j)
 Experiment with different combinations of predictors, including possible transformations and interactions, for each of the methods. Report the variables, method, and associated confusion matrix that appears to provide the best results on the held out data. Note that you should also experiment with values for K in the KNN classifier.
-```{r}
+```{r echo=FALSE}
 # Logistic regression with Lag2:Lag1
 glm.fit <- glm(Weekly$Direction~ Lag2:Lag1, data = Weekly, family = binomial, subset = train)
 glm.probs <-predict(glm.fit, weekly.2009, type = "response")
@@ -237,8 +229,8 @@ From all of these pemutations above, the original LDA and logistic regression ha
 In this problem, you will develop a model to predict whether a given car gets high or low gas mileage based on the "Auto" data set.
 
 ###(a)
-Create a binary variable, mpg01, that contains a 1 if mpg contains a value above its median, and a 0 if mpg contains a 0 value below its median. You can compute the median using the median() function. Note you may find it helpful to use the data.frame() function to create a single data set containing both mpg01 and the other Auto variables.
-```{r}
+Create a binary variable, mpg01, that contains a 1 if mpg contains a value above its median, and a 0 if mpg contains a 0 value below its median. You can compute the median using the median function. Note you may find it helpful to use the data.frame function to create a single data set containing both mpg01 and the other Auto variables.
+```{r echo=FALSE}
 attach(Auto)
 mpg01 <- rep(0, length(mpg))
 mpg01[mpg > median(mpg)] <- 1
@@ -248,40 +240,40 @@ Auto <-data.frame(Auto, mpg01)
 
 ###(b)
 Explore the data graphically in order to investigate the association between mpg01 and the other features. Which of the other features seem most likely to be useful in predicting mpg01? Scatterplots and boxplots may be useful tools to answer this question. Describe your findings.
-```{r}
+```{r echo=FALSE}
 cor(Auto[, -9])
 ```
-```{r}
+```{r echo=FALSE}
 pairs(Auto)
 ```
-```{r}
+```{r echo=FALSE}
 boxplot(cylinders ~ mpg01, data = Auto, main = "Cylinders vs mpg01")
 ```
 
-```{r}
+```{r echo=FALSE}
 boxplot(displacement ~ mpg01, data = Auto, main = "Displacement vs mpg01")
 ```
 
-```{r}
+```{r echo=FALSE}
 boxplot(horsepower ~ mpg01, data = Auto, main = "Horsepower vs mpg01")
 ```
 
-```{r}
+```{r echo=FALSE}
 boxplot(weight ~ mpg01, data = Auto, main = "Weight vs mpg01")
 ```
 
-```{r}
+```{r echo=FALSE}
 boxplot(acceleration ~ mpg01, data = Auto, main = "Acceleration vs mpg01")
 ```
 
-```{r}
+```{r echo=FALSE}
 boxplot(year ~ mpg01, data = Auto, main = "Year vs mpg01")
 ```
 We may conclude that there exists some association between "mpg01" and "cylinders", "weight", "displacement" and "horsepower".
 
 ###(c)
 Split the data into a training set and a test set.
-```{r}
+```{r echo=FALSE}
 train <-(year %% 2 == 0)
 Auto.train <- Auto[train, ]
 Auto.test <- Auto[!train, ]
@@ -290,11 +282,11 @@ mpg01.test <- mpg01[!train]
 
 ###(d)
 Perform LDA on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
-```{r}
+```{r echo=FALSE}
 fit.lda <- lda(mpg01 ~ cylinders + weight + displacement + horsepower, data = Auto, subset = train)
 fit.lda
 ```
-```{r}
+```{r echo=FALSE}
 pred.lda <-predict(fit.lda, Auto.test)
 table(pred.lda$class, mpg01.test)
 mean(pred.lda$class !=mpg01.test)
@@ -303,11 +295,11 @@ From the table, we find that the total number of observations is $86+9+14+73=182
 
 ###(e)
 Perform QDA on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
-```{r}
+```{r echo=FALSE}
 fit.qda<-qda(mpg01 ~ cylinders + weight + displacement + horsepower, data = Auto, subset = train)
 fit.qda
 ```
-```{r}
+```{r echo=FALSE}
 pred.qda <- predict(fit.qda, Auto.test)
 table(pred.qda$class, mpg01.test)
 mean(pred.qda$class != mpg01.test)
@@ -316,11 +308,11 @@ The same as LDA, here we may conclude that we have a test error rate of 13.187%.
 
 ###(f)
 Perform logistic regression on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
-```{r}
+```{r echo=FALSE}
 fit.glm <- glm(mpg01 ~ cylinders + weight + displacement + horsepower, data = Auto, family = binomial, subset = train)
 summary(fit.glm)
 ```
-```{r}
+```{r echo=FALSE}
 probs <- predict(fit.glm, Auto.test, type = "response")
 pred.glm <- rep(0, length(probs))
 pred.glm[probs > 0.5] <- 1
@@ -331,11 +323,11 @@ The number of total observations here is $89+11+11+71=182$, so the test error sh
 
 ###(g)
 Perform naive Bayes on the training data in order to predict mpg01 using the variables that seemed most associated with mpg01 in (b). What is the test error of the model obtained?
-```{r}
+```{r echo=FALSE}
 fit.naive<- naiveBayes(mpg01 ~ cylinders + weight + displacement + horsepower, data = Auto, subset = train)
 fit.naive
 ```
-```{r}
+```{r echo=FALSE}
 nb.probs <- predict(fit.naive, Auto.test)
 table(nb.probs, mpg01.test)
 mean(nb.probs == mpg01.test)
@@ -344,7 +336,7 @@ Naive Bayes performs very well on this data, with accurate predictions about 87.
 
 ###(h)
 Perform KNN on the training data, with several values of K, in order to predict mpg01. Use only the variables that seemed most associated with mpg01 in (b). What test errors do you obtain? Which value of K seems to perform the best on this data set?
-```{r}
+```{r echo=FALSE}
 train.X <- cbind(cylinders, weight, displacement, horsepower)[train, ]
 test.X <-cbind(cylinders, weight, displacement, horsepower)[!train, ]
 train.mpg01 <- mpg01[train]
@@ -355,12 +347,12 @@ mean(pred.knn != mpg01.test)
 ```
 
 Here we may conclude that we have a test error rate of 15.3846% for K = 1.
-```{r}
+```{r echo=FALSE}
 pred.knn<-knn(train.X, test.X, train.mpg01, k = 10)
 table(pred.knn, mpg01.test)
 mean(pred.knn != mpg01.test)
 ```
-```{r}
+```{r echo=FALSE}
 pred.knn<-knn(train.X, test.X, train.mpg01, k = 100)
 table(pred.knn, mpg01.test)
 mean(pred.knn != mpg01.test)
@@ -372,9 +364,9 @@ We do the same thing on K=10 and K=100, and we get the conclusions that for K=10
 This problem involves writing functions.
 ###(a)
 Write a function, Power(), that prints out the result of raising 2 to the 3rd power. In other words, your function should compute $2^3$ and print out the results.
-Hint: Recall that x^a raises x to the power a. Use the print()
+Hint: Recall that $x^a$ raises x to the power a. Use the print()
 function to output the result.
-```{r}
+```{r echo=FALSE}
 Power<- function(){
   2^3
 }
@@ -383,8 +375,8 @@ Power()
 
 ###(b)
 Create a new function, Power2(), that allows you to pass any
-two numbers, x and a, and prints out the value of x^a.
-```{r}
+two numbers, x and a, and prints out the value of $x^a$.
+```{r echo=FALSE}
 Power2 <- function(x, a){
   x^a
 }
@@ -392,18 +384,16 @@ Power2(3, 8)
 ```
 
 ###(c)
-Using the Power2() function that you just wrote, compute 10^3, 8^17, and 131^3.
-```{r}
+Using the Power2() function that you just wrote, compute $10^3$, $8^17$, and $131^3$.
+```{r echo=FALSE}
 Power2(10, 3)
 Power2(8, 17)
 Power2(131, 3)
 ```
 
 ###(d)
-Now create a new function, Power3(), that actually returns the result x^a as an R object, rather than simply printing it to the
-screen. That is, if you store the value x^a in an object called
-result within your function, then you can simply return() this result.
-```{r}
+Now create a new function, Power3(), that actually returns the result $x^a$ as an R object, rather than simply printing it to the screen. That is, if you store the value $x^a$ in an object called result within your function, then you can simply return() this result.
+```{r echo=FALSE}
 Power3 <- function(x, a){
   result <- x^a
   return(result)
@@ -411,16 +401,16 @@ Power3 <- function(x, a){
 ```
 
 ###(e)
-Now using the Power3() function, create a plot of f(x) = x^2. The x-axis should display a range of integers from 1 to 10, and the y-axis should display x^2. Label the axes appropriately, and use an appropriate title for the figure. Consider displaying either the x-axis, the y-axis, or both on the log-scale. You can do this
+Now using the Power3() function, create a plot of f(x) = $x^2$. The x-axis should display a range of integers from 1 to 10, and the y-axis should display $x^2$. Label the axes appropriately, and use an appropriate title for the figure. Consider displaying either the x-axis, the y-axis, or both on the log-scale. You can do this
 by using log = "x",log = "y",or log = "xy" as arguments to the plot() function.
-```{r}
+```{r echo=FALSE}
 x<- 1: 10
 plot(x, Power3(x, 2), log = "xy", xlab = "Log of x", ylab = "Log of x^2", main = "Log of x^2 vs Log of x")
 ```
 
 ###(f)
-Create a function, PlotPower(), that allows you to create a plot of x against x^a for a fixed a and for a range of values of x.
-```{r}
+Create a function, PlotPower(), that allows you to create a plot of x against $x^a$ for a fixed a and for a range of values of x.
+```{r echo=FALSE}
 PlotPower <- function(x, a){
   plot(x, Power3(x, a))
 }
@@ -430,66 +420,76 @@ PlotPower(1:10, 3)
 ##4.16
 Using the Boston data set, fit classification models in order to predict whether a given census tract has a crime rate above or below the median. Explore logistic regression, LDA, naive Bayes, and KNN models using various subsets of the predictors. Describe your findings.
 Hint: You will have to create the response variable yourself, using the variables that are contained in the Boston data set.
-```{r}
+```{r echo=FALSE}
 library(MASS)
 attach(Boston)
-crim01 <- rep(0, length(crim))
-crim01[crim > median(crim)] <- 1
-Boston<-data.frame(Boston, crim01)
-
-train <- 1:(length(crim) / 2)
-test <- (length(crim) /2 + 1):length(crim)
-Boston.train <- Boston[train, ]
-Boston.test <- Boston[test, ]
-crim01.test <- crim01[test]
+median_crime = median(crim)
+# Here I will create "crim_lvl" variable that takes on two values: "0" or "1". "0" if crime rate below median and "1" if above median.
+crim_lvl <- rep(0, 506)
+crim_lvl[crim > median_crime] = 1
+crim_lvl<- as.factor(crim_lvl)
+Boston_2 <-data.frame(Boston, crim_lvl)
+detach(Boston)
 ```
 
 ### Logistic Regression
-```{r}
-fit.glm1 <- glm(crim01 ~ . - crim01 - crim, data = Boston, family = binomial, subset = train)
-probs1 <- predict(fit.glm1, Boston.test, type = "response")
-pred.glm1 <- rep(0, length(probs1))
-pred.glm1[probs1 > 0.5] <- 1
-table(pred.glm1, crim01.test)
-mean(pred.glm1 != crim01.test)
+Here I need to create our train and test data sets.
+```{r echo=FALSE}
+set.seed(1)
+train_16 <-rbinom(506, 1, 0.7)
+Boston_2 <-cbind(Boston_2, train_16)
+Boston.train<-Boston_2[train_16 == 1, ]
+Boston.test<-Boston_2[train_16 == 0, ]
+attach(Boston.train)
+fit.glm<-glm(crim_lvl~nox + medv, data = Boston.train, family = binomial)
+summary(fit.glm)
 ```
-The number of total observations above is $68+24+22+139=253$, so the test error rate is $\frac {24+22}{253}=18.18\%$, which can be concluded by the mean function.
-```{r}
-fit.glm <- glm(crim01 ~ . - crim01 -crim - chas - nox, data = Boston, family = binomial, subset = train)
-probs <-predict(fit.glm, Boston.test, type = "response")
-pred.glm <-rep(0, length(probs))
-pred.glm[probs > 0.5] <- 1
-table(pred.glm, crim01.test)
+```{r echo=FALSE}
+detach(Boston.train)
+glm.prob<-predict(fit.glm, Boston.test, type = "response")
+glm.preds<-rep(0,146)
+glm.preds[glm.prob > 0.5] = 1
+
+dat<-matrix(data = table(glm.preds, Boston.test$crim_lvl), nrow = 2, ncol = 2,dimnames=list(c("Below median", "Above median"), c("Below", "Above")))
+names(dimnames(dat)) <- c("predicted", "observed")
+print(dat)
 ```
 
+
+The number of total observations above is $63+16+12+55=146$, so the test error rate is $\frac {16+12}{146}=19.18\%$. 
 
 ### LDA
-```{r}
-fit.lda <- lda(crim01 ~ . - crim01 -crim, data = Boston, subset = train)
-pred.lda <- predict(fit.lda, Boston.test)
-table(pred.lda$class, crim01.test)
-mean(pred.lda$class != crim01.test)
+```{r echo=FALSE}
+fit.lda <- lda(crim_lvl~ nox +age +dis + medv, data = Boston_2, subset = (train_16 == 1))
+
+lda.pred <- predict(fit.lda, Boston.test)
+lda.class<-lda.pred$class
+
+dat<-matrix(data = table(lda.class, Boston.test$crim_lvl), nrow = 2, ncol = 2,dimnames=list(c("Below median", "Above median"), c("Below", "Above")))
+names(dimnames(dat)) <- c("predicted", "observed")
+print(dat)
 ```
-For the LDA method, the test error rate here is 13.44%.
+For the LDA method, the test error rate here is $\frac {14+13}{62+14+13+57}=18.49 \%$.
 
 ### Naive Bayes
-### KNN Models
-```{r}
-train.X<- cbind(zn, indus, chas, nox, rm, age, dis, rad, tax, ptratio, black, lstat, medv)[train, ]
-test.X <- cbind(zn, indus, chas, nox, rm, age, dis, rad, tax, ptratio, black, lstat, medv)[test, ]
-train.crim01 <- crim01[train]
-set.seed(1)
-## K=1
-pred.knn<-knn(train.X, test.X, train.crim01, k=1)
-table(pred.knn, crim01.test)
-mean(pred.knn !=crim01.test)
-## K=10
-pred.knn<-knn(train.X, test.X, train.crim01, k=10)
-table(pred.knn, crim01.test)
-mean(pred.knn !=crim01.test)
-## K=100
-pred.knn<-knn(train.X, test.X, train.crim01, k=100)
-table(pred.knn, crim01.test)
-mean(pred.knn !=crim01.test)
+```{r echo=FALSE}
+fit.naive<- naiveBayes(crim_lvl~ nox +age +dis + medv, data = Boston_2, subset = (train_16 == 1))
+nb.probs <- predict(fit.naive, Boston.test)
 ```
 
+### KNN Models
+```{r echo=FALSE}
+train.x_16<-cbind(Boston.train$nox, Boston.train$tax, Boston.train$ptratio)
+test.x_16<-cbind(Boston.test$nox, Boston.test$tax, Boston.test$ptratio)
+set.seed(1)
+## K=3
+knn.pred.1<-knn(train.x_16, test.x_16, Boston.train$crim_lvl, k=3)
+table(knn.pred.1, Boston.test$crim_lvl)
+
+## K=5
+knn.pred.2<-knn(train.x_16, test.x_16, Boston.train$crim_lvl, k=5)
+table(knn.pred.2, Boston.test$crim_lvl)
+
+```
+When K=3, we have the test error rate as $\frac{4+5}{146}=6.16\%$. When K=5, we have the test error rate as $\frac{5+7}{146}=7.53\%$. 
+The best model is the KNN model with K=3. But the difficulty with the KNN approach is that it doesn't tell us which predictors are important and how they can affect the probability of our outcome.If we want to lower the crime rate of a community, we should look at what low-crime communities are doing. Based on our variables selected, we should look at that low-crime communities are doing in terms of air pollution,tax rates and school funding.
