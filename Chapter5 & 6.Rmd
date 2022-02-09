@@ -125,15 +125,63 @@ The second one is right. The non-linear methods relative to least squares, is mo
 In this exercise, we will predict the number of applications received using the other variables in the College data set.
 ###(a)
 Split the data set into a training set and a test set.
+```{r}
+library(ISLR)
+data(College)
+set.seed(11)
+data1 <- sample(1:dim(College)[1], dim(College)[1] / 2)
+data2 <- -data1
+train <- College[data1, ]
+test <- College[data2, ]
+```
+Here I got a training set named "train" and a test set named "test".
 
 ###(b)
 Fit a linear model using least squares on the training set, and report the test error obtained.
+```{r}
+fit1 <- lm(Apps ~ ., data = train)
+pred1 <- predict(fit1, test)
+mean((pred1 - test$Apps)^2)
+```
+Using least squares on the training set, the test error obtained is 1026096.
 
 ###(c)
 Fit a ridge regression model on the training set, with $\lambda$ chosen by cross-validation. Report the test error obtained.
+```{r}
+library(glmnet)
+train.mat <- model.matrix(Apps ~., data = train)
+test.mat <- model.matrix(Apps ~., data = test)
+grid <- 10 ^ seq (4, -2, length = 100)
+ridge.mod <- glmnet(train.mat, train$Apps, alpha = 0,lambda = grid, thresh = 1e-12)
+cv.out <- cv.glmnet(train.mat, train$Apps, alpha = 0,lambda = grid, thresh = 1e-12)
+bestlam <- cv.out$lambda.min
+bestlam
+```
+```{r}
+ridge.pred <- predict(ridge.mod, s = bestlam, newx = test.mat)
+mean((ridge.pred - test$Apps) ^2)
+```
+It would be better to use cross-validation to choose the tuning parameter $\lambda$. Here I set a random seed first so the results will be reproducible, since the choice of the cross-validation folds is random. Therefore, I see that the value of $\lambda$ that results in the smallest cross-validation error is 393.8031. And the test MSE is 1273242, which represents a further improvement over the test MSE that I got using least squares.
 
 ###(d)
 Fit a lasso model on the training set, with $\lambda$ chosen by cross-validation. Report the test error obtained, along with the number of non-zero coefficient estimates.
+```{r}
+lasso.mod <- glmnet(train.mat, train$Apps, alpha = 1, lambda = grid)
+plot(lasso.mod)
+set.seed(1)
+cv.out <- cv.glmnet(train.mat, train$Apps, alpha = 1)
+plot(cv.out)
+bestlam.lasso <- cv.out$lambda.min
+bestlam.lasso
+lasso.pred <- predict(lasso.mod, s = bestlam.lasso, newx = test.mat)
+mean((lasso.pred - test$Apps) ^2)
+```
+We can see from the coefficient plot that depending on the choice of tuning parameter, some of the coefficients will be exactly equal to zero. Next I perform cross-validation and compute the associated test error.
+
+```{r}
+predict(lasso.mod, s = bestlam.lasso, type = "coefficients")
+```
+
 
 ###(e)
 Fit a PCR model on the training set, with M chosen by cross-validation. Report the test error obtained, along with the value
@@ -147,4 +195,82 @@ of M selected by cross-validation.
 Comment on the results obtained. How accurately can we predict the number of college applications received? Is there much difference among the test errors resulting from these five approaches?
 
 ## 6.10
+We have seen that as the number of features used in a model increases, the training error will necessarily decrease, but the test error may not. We will now explore this in a simulated data set.
+###(a)
+Generate a data set with p = 20 features, n = 1,000 observations, and an associated quantitative response vector generated according to the model $Y=X\beta +\epsilon$, where $\beta$ has some elements that are exactly equal to zero.
+```{r}
+set.seed(1)
+x <- matrix(rnorm(1000 * 20), 1000, 20)
+beta <- rnorm(20)
+beta[1] <- 0
+beta[5] <- 0
+beta[10] <- 0
+beta[15] <- 0
+beta[20] <- 0
+epsil <- rnorm(1000)
+y <- x %*% beta + epsil
+```
+
+###(b)
+Split your data set into a training set containing 100 observations and a test set containing 900 observations.
+```{r}
+part1 <- sample(seq(1000), 100, replace = FALSE)
+part2 <- -part1
+x.train <- x[part1, ]
+x.test <- x[part2, ]
+y.train <- y[part1]
+y.test <- y[part2]
+```
+
+###(c)
+Perform best subset selection on the training set, and plot the training set MSE associated with the best model of each size.
+```{r}
+data1 <- data.frame(y = y.train, x = x.train)
+library(leaps)
+regfit.full <- regsubsets(y ~ ., data = data1, nvmax = 20)
+train.mat <- model.matrix(y ~ ., data = data1, nvmax = 20)
+error <- rep(NA, 20)
+for(i in 1 :20){
+  coef <- coef(regfit.full, id = i)
+  pred <- train.mat[, names(coef)] %*% coef
+  error[i] <- mean((pred - y.train) ^ 2)
+}
+plot(error, xlab = "Number of Predictors", ylab = "Training MSE", pch = 19, type = "b")
+```
+
+
+###(d)
+Plot the test set MSE associated with the best model of each size.
+```{r}
+data2 <- data.frame(y = y.test, x = x.test)
+test.mat <- model.matrix(y ~ ., data = data2, nvmax = 20)
+error <- rep(NA, 20)
+for(i in 1 :20){
+  coef <- coef(regfit.full, id = i)
+  pred <- test.mat[, names(coef)] %*% coef
+  error[i] <- mean((pred - y.test) ^ 2)
+}
+plot(error, xlab = "Number of Predictors", ylab = "Test MSE", pch = 19, type = "b")
+```
+
+
+###(e)
+For which model size does the test set MSE take on its minimum value? Comment on your results. If it takes on its minimum value for a model containing only an intercept or a model containing all of the features, then play around with the way that you are generating the data in (a) until you come up with a scenario in which the test set MSE is minimized for an intermediate model size.
+```{r}
+which.min(error)
+```
+The 15-variables model has the smallest test MSE.
+
+###(f)
+How does the model at which the test set MSE is minimized compare to the true model used to generate the data? Comment on the coefficient values.
+```{r}
+coef(regfit.full, which.min(error))
+```
+
+
+###(g)
+
+
+
+
 ## 6.11
