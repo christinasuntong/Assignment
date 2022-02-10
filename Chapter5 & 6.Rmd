@@ -228,6 +228,8 @@ Perform best subset selection on the training set, and plot the training set MSE
 data1 <- data.frame(y = y.train, x = x.train)
 library(leaps)
 regfit.full <- regsubsets(y ~ ., data = data1, nvmax = 20)
+reg.summary <- summary(regfit.full)
+reg.summary$rsq
 train.mat <- model.matrix(y ~ ., data = data1, nvmax = 20)
 error <- rep(NA, 20)
 for(i in 1 :20){
@@ -235,9 +237,9 @@ for(i in 1 :20){
   pred <- train.mat[, names(coef)] %*% coef
   error[i] <- mean((pred - y.train) ^ 2)
 }
-plot(error, xlab = "Number of Predictors", ylab = "Training MSE", pch = 19, type = "b")
+plot(error, xlab = "Number of Predictors", ylab = "Training MSE", pch = 16, type = "b")
 ```
-
+"regsubsets()" function performs best subset selection by identifying the best model that contains a given number of predictors, where best is quantified using RSS.  An asterisk indicates that a given variable is included in the corresponding model.  For instance, the output above shows that the best two-variable model contains only "x.9" and "x.4". The "nvmax" option can be used in order to return as many variables as are desired. Here I fit uo to a 20-variable model. The "summary()" function also returns $R^2$, RSS, adjusted $R^2$, $C_p$, and BIC. For example, I find that the $R^2$ statistics increases from 33.6%, when only one variable is included in the model, to almost 95.2%, when all variables are included. As expected, the $R^2$ statistic increases monotonically as more variables are included. Next I make a model matrix from the training data. And then I run a loop, and for each size $i$, I extract the coefficients from "regfit.full" for the best model of that size, multiply them into the appropriate columns of the training model matrix to form the predictions, and compute the training MSE. I find that the best model is the one that contains all of the variables.
 
 ###(d)
 Plot the test set MSE associated with the best model of each size.
@@ -266,11 +268,19 @@ How does the model at which the test set MSE is minimized compare to the true mo
 ```{r}
 coef(regfit.full, which.min(error))
 ```
-
+The best model caught all zeroed out coefficients.
 
 ###(g)
 
-
-
+```{r}
+error <- rep(NA, 20)
+x_cols <- colnames(x, do.NULL = FALSE, prefix = "x.")
+for (i in 1:20) {
+  coef <- coef(regfit.full, id = i)
+  error[i] <- sqrt(sum((beta[x_cols %in% names(coef)] - coef[names(coef) %in% x_cols])^2) + sum(beta[!(x_cols %in% names(coef))])^2)
+}
+plot(error, xlab = "Number of coefficients", ylab = "Error between estimated and true coefficients", pch = 19, type = "b")
+```
+We may see that the model with 3 variables minimizes the error between the estimated and true coefficients. However test error is minimized by the model with 15 variables. So, a better fit of true coefficients does not necessarily mean a lower test MSE.
 
 ## 6.11
