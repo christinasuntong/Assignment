@@ -289,6 +289,65 @@ We will now try to predict per capita crime rate in the Boston data set.
 ###(a)
 Try out some of the regression methods explored in this chapter, such as best subset selection, the lasso, ridge regression, and PCR. Present and discuss results for the approaches that you consider.
 
+# Best subset selection
+```{r}
+library(MASS)
+data(Boston)
+set.seed(2)
+library(leaps)
+predict.regsubsets <- function(object, newdata, id, ...){
+  form <- as.formula(object$call[[2]])
+  mat <- model.matrix(form, newdata)
+  coefi <- coef(object, id = id)
+  mat[, names(coefi)] %*% coefi
+}
+
+k = 10
+p <- ncol(Boston) - 1
+folds <- sample(rep(1:k, length = nrow(Boston)))
+cv.errors <- matrix(NA, k, p)
+for(i in 1:k){
+  best.fit <- regsubsets(crim ~ ., data = Boston[folds != i, ], nvmax = p)
+  for(j in 1:p) {
+    pred <- predict(best.fit, Boston[folds == i, ], id = j)
+    cv.errors[i,j] <- mean((Boston$crim[folds == i] - pred)^2)
+  }
+}
+rmse.cv <- sqrt(apply(cv.errors, 2, mean))
+plot(rmse.cv, pch = 16, type = "b")
+```
+After fitting 13 models, which equals to the number of variables minus 1, I will need to find the one model that minimizes the CV error on the test data.
+```{r}
+summary(best.fit)
+```
+
+```{r}
+which.min(rmse.cv)
+```
+
+```{r}
+boston.bsm.err <- (rmse.cv[which.min(rmse.cv)]) ^2
+boston.bsm.err
+```
+
+I see that cross-validation selects a 9-variable model based on the test MSE. At 9-variables, the CV estimate for the test MSE is 43.32807. The variables that are included in this model are zn,indus,nox,dis,rad,ptratio,black,lstat, and medv.
+
+# The lasso
+```{r}
+x <- model.matrix(crim ~ ., Boston)[, -1]
+y <- Boston$crim
+boston.lasso <- cv.glmnet(x, y, alpha = 1, type.measure = "mse")
+plot(boston.lasso)
+```
+The graph above depicts the relationship between log $\lambda$ and MSE. To help predict the training model on the test model, I will need to find the $\lambda$ that reduces the error the most.
+
+# Ridge regression
+```{r}
+cv.out.ridge <- cv.glmnet(x, y, alpha = 0, type.measure = "mse")
+plot(cv.out.ridge)
+```
+
+
 ###(b)
 Propose a model (or set of models) that seem to perform well on this data set, and justify your answer. Make sure that you are evaluating model performance using validation set error, cross-validation, or some other reasonable alternative, as opposed to using training error.
 
