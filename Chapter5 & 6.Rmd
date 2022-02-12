@@ -138,8 +138,8 @@ Here I got a training set named "train" and a test set named "test".
 Fit a linear model using least squares on the training set, and report the test error obtained.
 ```{r}
 fit1 <- lm(Apps ~ ., data = train)
-pred1 <- predict(fit1, test)
-mean((pred1 - test$Apps)^2)
+pred.lm <- predict(fit1, test)
+mean((pred.lm - test$Apps)^2)
 ```
 Using least squares on the training set, the test error obtained is 1135758.
 
@@ -149,52 +149,87 @@ Fit a ridge regression model on the training set, with $\lambda$ chosen by cross
 library(glmnet)
 train.mat <- model.matrix(Apps ~., data = train[ ,-1])
 test.mat <- model.matrix(Apps ~., data = test[ ,-1])
-#grid <- 10 ^ seq (4, -2, length = 100)
-#ridge.mod <- glmnet(train.mat, train$Apps, alpha = 0,lambda = grid, thresh = 1e-12)
+set.seed(1)
 cv.out <- cv.glmnet(train.mat, train$Apps, alpha = 0)
 bestlam <- cv.out$lambda.min
 bestlam
 ```
+
 ```{r}
-ridge.pred <- predict(cv.out, s = bestlam, newx = test.mat)
-mean((ridge.pred - test$Apps) ^2)
+pred.ridge <- predict(cv.out, s = bestlam, newx = test.mat)
+mean((pred.ridge - test$Apps) ^2)
 ```
-It would be better to use cross-validation to choose the tuning parameter $\lambda$. Here I set a random seed first so the results will be reproducible, since the choice of the cross-validation folds is random. Therefore, I see that the value of $\lambda$ that results in the smallest cross-validation error is 405.8404. And the test MSE is 1007688, which represents a further improvement over the test MSE that I got using least squares.
+It would be better to use cross-validation to choose the tuning parameter $\lambda$. Here I set a random seed first so the results will be reproducible, since the choice of the cross-validation folds is random. Therefore, I see that the value of $\lambda$ that results in the smallest cross-validation error is 405.8404. This time I want to get predictions for a test set, by using "newx" argument. And the test MSE is 1007688, which represents a further improvement over the test MSE that I got using least squares.
 
 ###(d)
 Fit a lasso model on the training set, with $\lambda$ chosen by cross-validation. Report the test error obtained, along with the number of non-zero coefficient estimates.
 ```{r}
-#lasso.mod <- glmnet(train.mat, train$Apps, alpha = 1, lambda = grid)
-#plot(lasso.mod)
 set.seed(1)
 cv.out <- cv.glmnet(train.mat, train$Apps, alpha = 1)
 plot(cv.out)
 bestlam.lasso <- cv.out$lambda.min
 bestlam.lasso
-lasso.pred <- predict(cv.out, s = bestlam.lasso, newx = test.mat)
-mean((lasso.pred - test$Apps) ^2)
+pred.lasso <- predict(cv.out, s = bestlam.lasso, newx = test.mat)
+mean((pred.lasso - test$Apps) ^2)
 ```
 We can see from the coefficient plot that depending on the choice of tuning parameter, some of the coefficients will be exactly equal to zero. Next I perform cross-validation and compute the associated test error, which is 1140473 here. So I think the Lasso model is not as strong at predicting as the ridge regression on this data.
 
 ```{r}
-predict(cv.out, s = bestlam.lasso, type = "coefficients")
+lasso.coef<- predict(cv.out, s = bestlam.lasso, type = "coefficients")[1:18, ]
+lasso.coef
+lasso.coef[lasso.coef != 0]
 ```
-As seen above, lasso chose some variables that we helpful in prediction on the test dataset. While a more simple and interpretable model than ridge regression, it did not perform as well in prediction accuracy. However, because the variance of the ridge regression was slightly lower than that of the Lasso, it produced a more minimum error. This instance may have resulted in the ridge-outperformance due to the fact that the response may be a function of many predictors.
+However, the lasso has a substantial advantage over ridge regression in that the resulting coefficient estimates are sparse. Here I find that 7 of the 18 coefficient estimates are exactly zero. So the lasso model with $\lambda$ chosen by cross-validation contains only 11 variables.
 
 ###(e)
 Fit a PCR model on the training set, with M chosen by cross-validation. Report the test error obtained, along with the value of M selected by cross-validation.
 ```{r}
 library(pls)
 pcr.fit <- pcr(Apps ~ ., data = train, scale = TRUE, validation = "CV")
+summary(pcr.fit)
 validationplot(pcr.fit, val.type = "MSEP")
 ```
 
+Here I apply PCR to the data.Setting "scale = TRUE" has the effect of standardizing each predictor, prior to generating the principal components, so that the scale on which each variable is measured will not have an effect. Setting 'validation ="CV"' causes "pcr()" to compute the ten-fold cross-validation error for each possible value of M, the number of principal components used.The CV score is provided for each possible number of components, ranging from M=0 onwards. One can also plot the cross-validation scores using the "validationplot" function. We see that the smallest cross-validation error occurs when  about M =17 components are used.
+
+```{r}
+pred.pcr <- predict(pcr.fit, test.mat, ncomp = 5)
+mean((pred.pcr - test$Apps)^2)
+```
+
+This test set MSE is 1963819 here.
 
 ###(f)
 Fit a PLS model on the training set, with M chosen by cross-validation. Report the test error obtained, along with the value of M selected by cross-validation.
+```{r}
+set.seed(1)
+pls.fit <- plsr(Apps ~ ., data = train, scale = TRUE, validation = "CV")
+summary(pls.fit)
+validationplot(pls.fit, val.type = "MSEP")
+pred.pls <- predict(pls.fit, test.mat, ncomp = 10)
+mean((pred.pls - test$Apps) ^2)
+```
+ The test MSE here in partial least squares is 1181808.
 
 ###(g)
 Comment on the results obtained. How accurately can we predict the number of college applications received? Is there much difference among the test errors resulting from these five approaches?
+
+In order to compare the results obtained above, we need to compute the test $R^2$ for all models.
+```{r}
+test.avg <- mean(test$Apps)
+lm <- 1- mean((pred.lm - test$Apps)^2) / mean((test.avg - test$Apps)^2)
+ridge <- 1- mean((pred.ridge - test$Apps)^2) / mean((test.avg - test$Apps)^2)
+lasso <- 1- mean((pred.lasso - test$Apps)^2) / mean((test.avg - test$Apps)^2)
+pcr <- 1- mean((pred.pcr - test$Apps)^2) / mean((test.avg - test$Apps)^2)
+pls <- 1- mean((pred.pls - test$Apps)^2) / mean((test.avg - test$Apps)^2)
+lm
+ridge
+lasso
+pcr
+pls
+```
+
+So the test $R^2$ for the least squares is 0.9015413, the test $R^2$ for ridge regression is 0.9015558, the test $R^2$ for lasso regression is 0.9011326, the test $R^2$ for PCR is 0.8297569, and the test $R^2$ for PLS is 0.8975493. Maybe I can conclude that, except PCR, all models predict college applications with high accuracy.
 
 ## 6.10
 We have seen that as the number of features used in a model increases, the training error will necessarily decrease, but the test error may not. We will now explore this in a simulated data set.
