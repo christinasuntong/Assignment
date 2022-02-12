@@ -126,7 +126,7 @@ Split the data set into a training set and a test set.
 ```{r}
 library(ISLR)
 data(College)
-set.seed(11)
+set.seed(1)
 data1 <- sample(1:dim(College)[1], dim(College)[1] / 2)
 data2 <- -data1
 train <- College[data1, ]
@@ -141,53 +141,57 @@ fit1 <- lm(Apps ~ ., data = train)
 pred1 <- predict(fit1, test)
 mean((pred1 - test$Apps)^2)
 ```
-Using least squares on the training set, the test error obtained is 1026096.
+Using least squares on the training set, the test error obtained is 1135758.
 
 ###(c)
 Fit a ridge regression model on the training set, with $\lambda$ chosen by cross-validation. Report the test error obtained.
 ```{r}
 library(glmnet)
-train.mat <- model.matrix(Apps ~., data = train)
-test.mat <- model.matrix(Apps ~., data = test)
-grid <- 10 ^ seq (4, -2, length = 100)
-ridge.mod <- glmnet(train.mat, train$Apps, alpha = 0,lambda = grid, thresh = 1e-12)
-cv.out <- cv.glmnet(train.mat, train$Apps, alpha = 0,lambda = grid, thresh = 1e-12)
+train.mat <- model.matrix(Apps ~., data = train[ ,-1])
+test.mat <- model.matrix(Apps ~., data = test[ ,-1])
+#grid <- 10 ^ seq (4, -2, length = 100)
+#ridge.mod <- glmnet(train.mat, train$Apps, alpha = 0,lambda = grid, thresh = 1e-12)
+cv.out <- cv.glmnet(train.mat, train$Apps, alpha = 0)
 bestlam <- cv.out$lambda.min
 bestlam
 ```
 ```{r}
-ridge.pred <- predict(ridge.mod, s = bestlam, newx = test.mat)
+ridge.pred <- predict(cv.out, s = bestlam, newx = test.mat)
 mean((ridge.pred - test$Apps) ^2)
 ```
-It would be better to use cross-validation to choose the tuning parameter $\lambda$. Here I set a random seed first so the results will be reproducible, since the choice of the cross-validation folds is random. Therefore, I see that the value of $\lambda$ that results in the smallest cross-validation error is 393.8031. And the test MSE is 1273242, which represents a further improvement over the test MSE that I got using least squares.
+It would be better to use cross-validation to choose the tuning parameter $\lambda$. Here I set a random seed first so the results will be reproducible, since the choice of the cross-validation folds is random. Therefore, I see that the value of $\lambda$ that results in the smallest cross-validation error is 405.8404. And the test MSE is 1007688, which represents a further improvement over the test MSE that I got using least squares.
 
 ###(d)
 Fit a lasso model on the training set, with $\lambda$ chosen by cross-validation. Report the test error obtained, along with the number of non-zero coefficient estimates.
 ```{r}
-lasso.mod <- glmnet(train.mat, train$Apps, alpha = 1, lambda = grid)
-plot(lasso.mod)
+#lasso.mod <- glmnet(train.mat, train$Apps, alpha = 1, lambda = grid)
+#plot(lasso.mod)
 set.seed(1)
 cv.out <- cv.glmnet(train.mat, train$Apps, alpha = 1)
 plot(cv.out)
 bestlam.lasso <- cv.out$lambda.min
 bestlam.lasso
-lasso.pred <- predict(lasso.mod, s = bestlam.lasso, newx = test.mat)
+lasso.pred <- predict(cv.out, s = bestlam.lasso, newx = test.mat)
 mean((lasso.pred - test$Apps) ^2)
 ```
-We can see from the coefficient plot that depending on the choice of tuning parameter, some of the coefficients will be exactly equal to zero. Next I perform cross-validation and compute the associated test error.
+We can see from the coefficient plot that depending on the choice of tuning parameter, some of the coefficients will be exactly equal to zero. Next I perform cross-validation and compute the associated test error, which is 1140473 here. So I think the Lasso model is not as strong at predicting as the ridge regression on this data.
 
 ```{r}
-predict(lasso.mod, s = bestlam.lasso, type = "coefficients")
+predict(cv.out, s = bestlam.lasso, type = "coefficients")
+```
+As seen above, lasso chose some variables that we helpful in prediction on the test dataset. While a more simple and interpretable model than ridge regression, it did not perform as well in prediction accuracy. However, because the variance of the ridge regression was slightly lower than that of the Lasso, it produced a more minimum error. This instance may have resulted in the ridge-outperformance due to the fact that the response may be a function of many predictors.
+
+###(e)
+Fit a PCR model on the training set, with M chosen by cross-validation. Report the test error obtained, along with the value of M selected by cross-validation.
+```{r}
+library(pls)
+pcr.fit <- pcr(Apps ~ ., data = train, scale = TRUE, validation = "CV")
+validationplot(pcr.fit, val.type = "MSEP")
 ```
 
 
-###(e)
-Fit a PCR model on the training set, with M chosen by cross-validation. Report the test error obtained, along with the value
-of M selected by cross-validation.
-
 ###(f)
-Fit a PLS model on the training set, with M chosen by cross-validation. Report the test error obtained, along with the value
-of M selected by cross-validation.
+Fit a PLS model on the training set, with M chosen by cross-validation. Report the test error obtained, along with the value of M selected by cross-validation.
 
 ###(g)
 Comment on the results obtained. How accurately can we predict the number of college applications received? Is there much difference among the test errors resulting from these five approaches?
@@ -340,17 +344,42 @@ boston.lasso <- cv.glmnet(x, y, alpha = 1, type.measure = "mse")
 plot(boston.lasso)
 ```
 The graph above depicts the relationship between log $\lambda$ and MSE. To help predict the training model on the test model, I will need to find the $\lambda$ that reduces the error the most.
-
-# Ridge regression
 ```{r}
-cv.out.ridge <- cv.glmnet(x, y, alpha = 0, type.measure = "mse")
-plot(cv.out.ridge)
+coef(boston.lasso)
+```
+```{r}
+boston.lasso.err <- (boston.lasso$cvm[boston.lasso$lambda == boston.lasso$lambda.1se])
+boston.lasso.err
 ```
 
+As we know that Lasso is a variable reduction method. From the results shown above, the Lasso model that reduces the MSE the model includes only one variable and has an MSE of 55.02399. The only variable included in this model is "rad".
+# Ridge regression
+```{r}
+boston.ridge <- cv.glmnet(x, y, alpha = 0, type.measure = "mse")
+plot(boston.ridge)
+```
+Ridge regression keeps all the variables but push their coefficient value close to zero if they do not have significance in the relationship with the response.
+```{r}
+coef(boston.ridge)
+```
+```{r}
+boston.ridge.err <- boston.ridge$cvm[boston.ridge$lambda == boston.ridge$lambda.1se]
+boston.ridge.err
+```
+The MSE for the ridge regression method is 61.37358 -- much larger than those in other two methods. So I think the ridge regression doesn't perform well.
+# PCR
+```{r}
+library(pls)
+boston.pcr <- pcr(crim ~ ., data = Boston, scale = TRUE, validation = "CV")
+summary(boston.pcr)
+```
+Based on the CV error as well as the variances explained, I think that the appropriate PCR model would only include 8 components. With 8 components, 93.45% of the variance is explained in the predictors by the model, and 42.47% of the variance is explained in the response variable by the model. Additionally, at 8 components, the MSE is at
 
 ###(b)
 Propose a model (or set of models) that seem to perform well on this data set, and justify your answer. Make sure that you are evaluating model performance using validation set error, cross-validation, or some other reasonable alternative, as opposed to using training error.
 
-
+As mentioned above, the model that has the lowest cross-validation error is the one chosen by the best subset selection method, which has a MSE of 43.32807.
 ###(c)
 Does your chosen model involve all of the features in the data set? Why or why not?
+
+The model that was chosen by Best Subset Selection only includes 9 variables. The variables that are included in this model are zn, indus, nox, dis, rad, ptratio, black, lstat and medv. If the model were to include of the thrown-out features, more variation of the response would be present. For this particular problem, we are looking to have model prediction accuracy with low variance and low MSE.
