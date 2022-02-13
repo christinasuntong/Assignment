@@ -332,7 +332,7 @@ Try out some of the regression methods explored in this chapter, such as best su
 ```{r}
 library(MASS)
 data(Boston)
-set.seed(2)
+set.seed(1)
 library(leaps)
 predict.regsubsets <- function(object, newdata, id, ...){
   form <- as.formula(object$call[[2]])
@@ -355,7 +355,8 @@ for(i in 1:k){
 rmse.cv <- sqrt(apply(cv.errors, 2, mean))
 plot(rmse.cv, pch = 16, type = "b")
 ```
-After fitting 13 models, which equals to the number of variables minus 1, I will need to find the one model that minimizes the CV error on the test data.
+
+Here I try to choose among the models of different sizes using cross-validation. First, we create a vector that allocates each observation to one of k=10 folds, and I create a matrix in which I will store the results. Then I write a for loop that performs cross-validation. In the $i$th fold, the elements of folds that equal $i$ are un the test set, and the remainder are in the training set. I make the predictions for each model size, compute the test errors on the appropriate subset, and store them in the appropriate slot in the matrix "cv.errors". The code will automatically use the "predict.regsubsets()" function when I call "predict()" because the "best.fit" object has class "regsubsets". After fitting 13 models, which equals to the number of variables minus 1, I will need to find the one model that minimizes the CV error on the test data.
 ```{r}
 summary(best.fit)
 ```
