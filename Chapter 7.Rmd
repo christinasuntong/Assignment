@@ -19,5 +19,47 @@ plot(x,y)
 The curve is linear between-2 and 1: $y=1+x$ and quadratic between 1 and 2:$y=1+x-2(x-1)^2$.
 
 ### 7.9
+This question uses the variables dis (the weighted mean of distances to five Boston employment centers) and nox (nitrogen oxides concentration in parts per 10 million) from the Boston data. We will treat dis as the predictor and nox as the response.
+##(a)
+Use the poly() function to fit a cubic polynomial regression to predict nox using dis. Report the regression output, and plot the resulting data and polynomial fits.
+```{r}
+library(MASS)
+set.seed(1)
+fit <- lm(nox ~ poly(dis, 3), data = Boston)
+summary(fit)
+```
+```{r}
+dislims <- range(Boston$dis)
+dis.grid <- seq(from = dislims[1], to = dislims[2], by = 0.1)
+preds <- predict(fit, list(dis = dis.grid))
+plot(nox ~ dis, data = Boston, col = "darkgrey")
+lines(dis.grid, preds, col = "red", lwd = 2)
+```
+We may conclude that all polynomial terms are significant.
+
+##(b)
+Plot the polynomial fits for a range of different polynomial degrees (say, from 1 to 10), and report the associated residual sum of squares.
+```{r}
+rss <- rep(NA, 10)
+for(i in 1:10){
+  fit <- lm(nox ~ poly(dis, i), data = Boston)
+  rss[i] <- sum(fit$residuals^2)
+}
+plot(1:10, rss, xlab = "Degree", ylab = "RSS", type = "l")
+```
+It seems that the RSS decreases with the degress of the polynomial, and so is minimum for a polynomial of degree 10.
+
+##(c)
+Perform cross-validation or another approach to select the optimal degree for the polynomial, and explain your results.
+
+##(d)
+Use the bs() function to fit a regression spline to predict nox using dis. Report the output for the fit using four degrees of freedom. How did you choose the knots? Plot the resulting fit.
+
+##(e)
+Now fit a regression spline for a range of degrees of freedom, and plot the resulting fits and report the resulting RSS. Describe the results obtained.
+
+##(f)
+Perform cross-validation or another approach in order to select the best degrees of freedom for a regression spline on this data.Describe your results.
+
 ### 7.10
 ### 7.11
