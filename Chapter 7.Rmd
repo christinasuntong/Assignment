@@ -28,14 +28,21 @@ set.seed(1)
 fit <- lm(nox ~ poly(dis, 3), data = Boston)
 summary(fit)
 ```
+Here the poly() command allows us to avoid having to write out a long formula with powers of dis. The function returns a matrix whose columns are a basis of orthogonal polynomials, which essentially means that each column is a linear combination of the variables $dis$, $dis^2$ and $dis^3$.
+
 ```{r}
 dislims <- range(Boston$dis)
 dis.grid <- seq(from = dislims[1], to = dislims[2], by = 0.1)
-preds <- predict(fit, list(dis = dis.grid))
-plot(nox ~ dis, data = Boston, col = "darkgrey")
-lines(dis.grid, preds, col = "red", lwd = 2)
+preds <- predict(fit, newdata = list(dis = dis.grid), se = TRUE)
+se.bands <- cbind(preds$fit + 2 * preds$se.fit, preds$fit - 2 * preds$se.fit)
+par(mfrow = c(1,2), mar = c(4.5,4.5,1,1), oma = c(0, 0, 4, 0))
+plot(Boston$dis, Boston$nox, xlim = dislims, cex = .5, col = "darkgrey")
+title("Degree-3 Polynomial", outer = T)
+lines(dis.grid, preds$fit, col = "red", lwd = 2)
+matlines(dis.grid, se.bands, lwd = 1, col = "red", lty = 3)
 ```
-We may conclude that all polynomial terms are significant.
+
+Here I create a grid of values for dis at which I want predictions. And then I plot the data and add the fit from the degree-3 polynomial. Here the $mar$ and $oma$ arguments to $par()$ allow me to control the margins of the plot, and the $title()$ function creates a figure title that spans both subplots. We may conclude that all polynomial terms are significant.
 
 ##(b)
 Plot the polynomial fits for a range of different polynomial degrees (say, from 1 to 10), and report the associated residual sum of squares.
@@ -47,10 +54,14 @@ for(i in 1:10){
 }
 plot(1:10, rss, xlab = "Degree", ylab = "RSS", type = "l")
 ```
-It seems that the RSS decreases with the degress of the polynomial, and so is minimum for a polynomial of degree 10.
+It seems that the RSS decreases with the degre of the polynomial, and so is minimum for a polynomial of degree 10.
 
 ##(c)
 Perform cross-validation or another approach to select the optimal degree for the polynomial, and explain your results.
+```{r}
+
+```
+
 
 ##(d)
 Use the bs() function to fit a regression spline to predict nox using dis. Report the output for the fit using four degrees of freedom. How did you choose the knots? Plot the resulting fit.
