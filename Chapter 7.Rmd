@@ -67,15 +67,74 @@ for (i in 1:10){
 plot(1:10, deltas, xlab = "Degree", ylab = "Test MSE", type = "l")
 ```
 
+We may see that a polynomial of degree 4 minimizes the test MSE.
 
 ##(d)
 Use the bs() function to fit a regression spline to predict nox using dis. Report the output for the fit using four degrees of freedom. How did you choose the knots? Plot the resulting fit.
+```{r}
+library(splines)
+fit <- lm(nox ~ bs(dis, knots = c(4, 7, 11)), data = Boston)
+summary(fit)
+```
+```{r}
+pred <-predict(fit, list(dis = dis.grid))
+plot(nox ~ dis, data = Boston, col = "darkgrey")
+lines(dis.grid, preds$fit, col = "red", lwd = 2)
+```
+
+We may conclude that all terms in spline fit are significant.
 
 ##(e)
 Now fit a regression spline for a range of degrees of freedom, and plot the resulting fits and report the resulting RSS. Describe the results obtained.
+```{r}
+rss <- rep(NA, 16)
+for(i in 3:16){
+  fit <- lm(nox ~ bs(dis, df = i), data = Boston)
+  rss[i] <- sum(fit$residuals^2)
+}
+plot(3:16, rss[-c(1,2)], xlab = "Degrees of freedom", ylab = "RSS", type = "l")
+```
+We may see that RSS decreases until 14 and then slightly increases after that.
 
 ##(f)
 Perform cross-validation or another approach in order to select the best degrees of freedom for a regression spline on this data.Describe your results.
+```{r}
+library(boot)
+cv <- rep(NA, 16)
+for(i in 3:16){
+  fit <- glm(nox ~ bs(dis, df = i), data = Boston)
+  cv[i] <- cv.glm(Boston, fit, K = 10)$delta[1]
+}
+```
+```{r}
+plot(3:16, cv[-c(1, 2)], xlab = "Degrees of freedom", ylab = "Test MSE", type = "l")
+```
+Test MSE is minimum for 10 degrees of freedom.
 
 ### 7.10
+This question relates to the College data set.
+##(a)
+Split the data into a training set and a test set. Using out-of-state tuition as the response and the other variables as the predictors, perform forward stepwise selection on the training set in order to identify a satisfactory model that uses just a subset of the predictors.
+```{r}
+library(leaps)
+set.seed(1)
+attach(College)
+train <- sample(length(Outstate), length(Outstate) / 2)
+test <- -train
+College.train <- College[train, ]
+College.test <- College[test, ]
+fit <- regsubsets(Outstate ~ ., data = College.train, nvmax = 17, method = "forward")
+fit.summary <- summary(fit)
+```
+
+
+##(b)
+Fit a GAM on the training data, using out-of-state tuition as the response and the features selected in the previous step as the predictors. Plot the results, and explain your findings.
+
+##(c)
+Evaluate the model obtained on the test set, and explain the results obtained.
+
+##(d)
+For which variables, if any, is there evidence of a non-linear relationship with the response?
+
 ### 7.11
