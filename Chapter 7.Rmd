@@ -177,11 +177,28 @@ Suppose that we would like to perform multiple linear regression, but we do not 
 We now try this out on a toy example.
 ##(a)
 Generate a response Y and two predictors $X_1$ and $X_2$, with n = 100.
+```{r}
+set.seed(1)
+y <- rnorm(100)
+x1 <-rnorm(100)
+x2 <-rnorm(100)
+```
+
+
 ##(b)
 Initialize $\hat \beta_1$ to take on a value of your choice. It does not matter
 what value you choose.
+```{r}
+beta1 <- 2.15
+```
+
 ##(c)
-Keeping $\hat \beta_1$ fixed, fit the model
+Keeping $\hat \beta_1$ fixed, fit the model $Y-\hat \beta_2X_2=\beta_0+\beta_1X_1+\epsilon$
+```{r}
+a <- y - beta1 * x1
+beta2 <- lm(a ~ x2)$coef[2]
+```
+
 ##(d)
 ##(e)
 ##(f)
