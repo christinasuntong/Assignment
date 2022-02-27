@@ -2,11 +2,13 @@
 title: "Chapter 7"
 author: "Tong Sun"
 date: "2/13/2022"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,out.width="0.9\\linewidth",dev="pdf",fig.align  = 'center')
 ```
 
 ### 7.3
@@ -59,6 +61,7 @@ It seems that the RSS decreases with the degree of the polynomial, and so is min
 ##(c)
 Perform cross-validation or another approach to select the optimal degree for the polynomial, and explain your results.
 ```{r echo=FALSE}
+library(boot)
 deltas <- rep(NA, 10)
 for (i in 1:10){
   fit <- glm(nox ~ poly(dis, i), data = Boston)
@@ -117,6 +120,7 @@ This question relates to the College data set.
 Split the data into a training set and a test set. Using out-of-state tuition as the response and the other variables as the predictors, perform forward stepwise selection on the training set in order to identify a satisfactory model that uses just a subset of the predictors.
 ```{r echo=FALSE}
 library(leaps)
+library(ISLR)
 set.seed(1)
 attach(College)
 train <- sample(length(Outstate), length(Outstate) / 2)
@@ -208,7 +212,7 @@ beta1 <- lm(a ~ x1)$coef[2]
 
 ##(e)
 Write a for loop to repeat (c) and (d) 1,000 times. Report the estimates of $\hat\beta_0$, $\hat\beta_1$, and $\hat\beta_2$ at each iteration of the for loop. Create a plot in which each of these values is displayed, with $\hat\beta_0$, $\hat\beta_1$, and $\hat\beta_2$ each shown in a different color.
-```{r echo=FALSE}
+```{r echo=FALSE,include=FALSE}
 times <- 1000
 df <-data.frame(0, 2.55, 0)
 names(df) <- c('beta0','beta1','beta2')
