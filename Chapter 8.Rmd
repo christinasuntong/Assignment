@@ -1,0 +1,25 @@
+---
+title: "Chapter 8"
+author: "Tong Sun"
+date: "2/27/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,out.width="0.9\\linewidth",dev="pdf",fig.align  = 'center')
+```
+
+### 8.1
+Draw an example (of your own invention) of a partition of two-dimensional feature space that could result from recursive binary splitting. Your example should contain at least six regions. Draw a
+decision tree corresponding to this partition. Be sure to label all aspects of your figures, including the regions $R_1$, $R_2$,..., the cutpoints $t_1$, $t_2$,..., and so forth.
+Hint: Your result should look something like Figures 8.1 and 8.2.
+
+
+### 8.2
+### 8.3
+### 8.5
+### 8.7
+### 8.8
+### 8.11
