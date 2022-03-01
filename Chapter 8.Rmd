@@ -16,9 +16,23 @@ Draw an example (of your own invention) of a partition of two-dimensional featur
 decision tree corresponding to this partition. Be sure to label all aspects of your figures, including the regions $R_1$, $R_2$,..., the cutpoints $t_1$, $t_2$,..., and so forth.
 Hint: Your result should look something like Figures 8.1 and 8.2.
 
-
+![my answer](/Users/christinasun/Desktop/MA679/Assignment/8.1.jpeg)
 ### 8.2
+It is mentioned in Section 8.2.3 that boosting using depth-one trees (or stumps) leads to an additive model: that is, a model of the form $f(X)=\sum_{j=1}^{p} f_j(X_j)$.
+Explain why this is the case. You can begin with (8.12) in Algorithm 8.2.
+
+
 ### 8.3
+Consider the Gini index, classification error, and entropy in a simple classification setting with two classes. Create a single plot that displays each of these quantities as a function of $\hat p_{m1}$ The x-axis should display $\hat p_{m1}$, ranging from 0 to 1, and the y-axis should display the value of the Gini index, classification error, and entropy.
+Hint: In a setting with two classes, $\hat p_{m1}$ = 1 − $\hat p_{m2}$. You could make this plot by hand, but it will be much easier to make in R.
+```{r}
+p <- seq(0, 1, 0.01)
+gini.index <- 2*p*(1-p)
+class.error <- 1 - pmax(p, 1-p)
+cross.entropy <- -(p*log(p) + (1-p)*log(1-p))
+matplot(p, cbind(gini.index, class.error, cross.entropy), col = c("red", "green","blue"))
+```
+
 ### 8.5
 ### 8.7
 ### 8.8
