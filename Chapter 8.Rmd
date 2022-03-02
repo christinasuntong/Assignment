@@ -79,6 +79,7 @@ library(tree)
 tree.carseats <- tree(Sales ~ ., data = Carseats.train)
 summary(tree.carseats)
 ```
+Here I fit a regression tree to the Carseats data set. First, I create a training set and fit the tree to the training data. The output of "summary()" indicates that only seven variables have been used in constructing the tree. The deviance is simply the sum of squared errors for the tree.
 
 ```{r}
 plot(tree.carseats)
@@ -118,7 +119,7 @@ bag.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 10, ntree 
 yhat.bag <- predict(bag.carseats, newdata = Carseats.test)
 mean((yhat.bag - Carseats.test$Sales)^2)
 ```
-We may see that bagging decreases the Test MSE to 2.50.
+We may see that bagging decreases the Test MSE to 2.49.
 ```{r}
 importance(bag.carseats)
 ```
@@ -126,6 +127,16 @@ We may conclude that "ShelveLoc" and "Price" are the two most important variable
 
 ##(e)
 Use random forests to analyze this data. What test MSE do you obtain? Use the importance() function to determine which variables are most important. Describe the effect of m, the number of variables considered at each split, on the error rate obtained.
+```{r}
+rf.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 3, ntree = 500, importance = TRUE)
+yhat.rf <- predict(rf.carseats, newdata = Carseats.test)
+mean((yhat.rf - Carseats.test$Sales)^2)
+```
+In this case, with m = $\sqrt{p}$, we have a Test MSE of 2.94.
+```{r}
+importance(rf.carseats)
+```
+In this case, the two most important variables are also the "Price" and "ShelveLoc".
 
 ##(f)
 Now analyze the data using BART, and report your results.
