@@ -43,7 +43,7 @@ In the lab, we applied random forests to the Boston data using "mtry = 6" and us
 ```{r}
 library(randomForest)
 library(MASS)
-set.seed(2022)
+set.seed(1000)
 train <- sample(1:nrow(Boston), nrow(Boston)/2)
 x.train <- Boston[train, -14]
 x.test <- Boston[-train, -14]
@@ -54,12 +54,80 @@ forest.p1 <- randomForest(x.train, y.train, xtest = x.test, ytest = y.test, mtry
 forest.p2 <- randomForest(x.train, y.train, xtest = x.test, ytest = y.test, mtry = (ncol(Boston) -1) / 2, ntree = 500)
 forest.p.sqrt <- randomForest(x.train, y.train, xtest = x.test, ytest = y.test, mtry = sqrt(ncol(Boston) -1), ntree = 500)
 
-plot(1:500, forest.p1$test$mse, col = "blue", type = "l", xlab = "Number of Trees", ylab = "Test MSE", ylim = c(10, 19))
+plot(1:500, forest.p1$test$mse, col = "blue", type = "l", xlab = "Number of Trees", ylab = "Test MSE", ylim = c(8, 19))
 lines(1:500, forest.p2$test$mse, col = "red", type = "l")
 lines(1:500, forest.p.sqrt$test$mse, col = "green", type = "l")
 legend("topright", c("m=p", "m=p/2", "m=sqrt(p)"), col = c("blue", "red", "green"), cex = 1, lty = 1)
 ```
-We may see that the Test MSE is very high for a single tree, it decreases as the number of trees increases. Also the Test MSE for all predictors is higher than for half the predictors or the square root of the number
+Results from random forests for the data set with p = 500 predictors. The test error is displayed as a function of the number of trees. Each colored line corresponds to a different value of m, the number of predictors available for splitting at each interior tree node. Random forests (m=p/2) lead to a slight improvement over bagging (m=p). We may also see that the Test MSE is very high for a single tree, it decreases as the number of trees increases. But from this plot, the difference between these three Test MSEs are not so significant although the Test MSE for all predictors is higher than for half the predictors or the square root of the number of predictors.
 
 ### 8.8
+In the lab, a classification tree was applied to the Carseats data set after converting Sales into a qualitative response variable. Now we will seek to predict Sales using regression trees and related approaches, treating the response as a quantitative variable.
+##(a)
+Split the data set into a training set and a test set.
+```{r}
+library(ISLR)
+train <- sample(1:nrow(Carseats), nrow(Carseats) / 2)
+Carseats.train <- Carseats[train, ]
+Carseats.test <- Carseats[-train, ]
+```
+
+##(b)
+Fit a regression tree to the training set. Plot the tree, and interpret the results. What test MSE do you obtain?
+```{r}
+library(tree)
+tree.carseats <- tree(Sales ~ ., data = Carseats.train)
+summary(tree.carseats)
+```
+
+```{r}
+plot(tree.carseats)
+text(tree.carseats, pretty = 0)
+```
+
+```{r}
+yhat <- predict(tree.carseats, newdata = Carseats.test)
+mean((yhat - Carseats.test$Sales)^2)
+```
+We may conclude that the Test MSE is about 4.35.
+
+##(c)
+Use cross-validation in order to determine the optimal level of tree complexity. Does pruning the tree improve the test MSE?
+```{r}
+cv.carseats <- cv.tree(tree.carseats)
+plot(cv.carseats$size, cv.carseats$dev, type = "b")
+tree.min <- which.min(cv.carseats$dev)
+points(tree.min, cv.carseats$dev[tree.min], col = "red", cex = 2, pch = 20)
+```
+In this case, the tree of size 8 is selected by cross-validation. We now prune the tree to obtain the 8-node tree.
+```{r}
+prune.carseats <- prune.tree(tree.carseats, best = 8)
+plot(prune.carseats)
+text(prune.carseats, pretty = 0)
+```
+```{r}
+yhat <- predict(prune.carseats, newdata = Carseats.test)
+mean((yhat - Carseats.test$Sales)^2)
+```
+We may see that pruning the tree increases the Test MSE to 4.68.
+
+##(d)
+Use the bagging approach in order to analyze this data. What test MSE do you obtain? Use the importance() function to determine which variables are most important.
+```{r}
+bag.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 10, ntree = 500, importance = TRUE)
+yhat.bag <- predict(bag.carseats, newdata = Carseats.test)
+mean((yhat.bag - Carseats.test$Sales)^2)
+```
+We may see that bagging decreases the Test MSE to 2.50.
+```{r}
+importance(bag.carseats)
+```
+We may conclude that "ShelveLoc" and "Price" are the two most important variables/
+
+##(e)
+Use random forests to analyze this data. What test MSE do you obtain? Use the importance() function to determine which variables are most important. Describe the effect of m, the number of variables considered at each split, on the error rate obtained.
+
+##(f)
+Now analyze the data using BART, and report your results.
+
 ### 8.11
