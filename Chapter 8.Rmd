@@ -21,10 +21,12 @@ Hint: Your result should look something like Figures 8.1 and 8.2.
 It is mentioned in Section 8.2.3 that boosting using depth-one trees (or stumps) leads to an additive model: that is, a model of the form $f(X)=\sum_{j=1}^{p} f_j(X_j)$.
 Explain why this is the case. You can begin with (8.12) in Algorithm 8.2.
 
+![my answer](/Users/christinasun/Desktop/MA679/Assignment/8.2.jpeg)
 
 ### 8.3
 Consider the Gini index, classification error, and entropy in a simple classification setting with two classes. Create a single plot that displays each of these quantities as a function of $\hat p_{m1}$ The x-axis should display $\hat p_{m1}$, ranging from 0 to 1, and the y-axis should display the value of the Gini index, classification error, and entropy.
 Hint: In a setting with two classes, $\hat p_{m1}$ = 1 − $\hat p_{m2}$. You could make this plot by hand, but it will be much easier to make in R.
+
 ```{r}
 p <- seq(0, 1, 0.01)
 gini.index <- 2*p*(1-p)
@@ -85,12 +87,13 @@ Here I fit a regression tree to the Carseats data set. First, I create a trainin
 plot(tree.carseats)
 text(tree.carseats, pretty = 0)
 ```
+From the regression tree plot, the split at the top of the tree results in two large branches. The left-hand branch corresponds to "ShelveLoc" in "Good" level, and the right-hand branch corresponds to "ShelveLoc" in "Bad & Medium" level. And also the predictor "ShelveLoc" is the most important factor in determining "Sales". The number in each leaf is the mean of the response for the observations that fall there.
 
 ```{r}
 yhat <- predict(tree.carseats, newdata = Carseats.test)
 mean((yhat - Carseats.test$Sales)^2)
 ```
-We may conclude that the Test MSE is about 4.35.
+The conclusion is that the Test MSE is about 4.35.
 
 ##(c)
 Use cross-validation in order to determine the optimal level of tree complexity. Does pruning the tree improve the test MSE?
@@ -98,9 +101,9 @@ Use cross-validation in order to determine the optimal level of tree complexity.
 cv.carseats <- cv.tree(tree.carseats)
 plot(cv.carseats$size, cv.carseats$dev, type = "b")
 tree.min <- which.min(cv.carseats$dev)
-points(tree.min, cv.carseats$dev[tree.min], col = "red", cex = 2, pch = 20)
+points(tree.min, cv.carseats$dev[tree.min], col = "blue", cex = 2, pch = 20)
 ```
-In this case, the tree of size 8 is selected by cross-validation. We now prune the tree to obtain the 8-node tree.
+The process described above may produce good predictions on the training set, but is likely to overfit the data, leading to poor test set performance. This is because the resulting tree might be too complex. So here I use the "cv.tree()" function to see whether pruning the tree will improve performance.In this case, the most complex tree under consideration is selected by cross-validation.  In this case, the tree of size 8 is selected by cross-validation. We now prune the tree to obtain the 8-node tree.
 ```{r}
 prune.carseats <- prune.tree(tree.carseats, best = 8)
 plot(prune.carseats)
@@ -110,7 +113,7 @@ text(prune.carseats, pretty = 0)
 yhat <- predict(prune.carseats, newdata = Carseats.test)
 mean((yhat - Carseats.test$Sales)^2)
 ```
-We may see that pruning the tree increases the Test MSE to 4.68.
+I find that pruning the tree increases the Test MSE to 4.68.
 
 ##(d)
 Use the bagging approach in order to analyze this data. What test MSE do you obtain? Use the importance() function to determine which variables are most important.
@@ -119,11 +122,11 @@ bag.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 10, ntree 
 yhat.bag <- predict(bag.carseats, newdata = Carseats.test)
 mean((yhat.bag - Carseats.test$Sales)^2)
 ```
-We may see that bagging decreases the Test MSE to 2.49.
+I find that bagging decreases the Test MSE to 2.48.
 ```{r}
 importance(bag.carseats)
 ```
-We may conclude that "ShelveLoc" and "Price" are the two most important variables/
+We may conclude that "ShelveLoc" and "Price" are the two most important variables.
 
 ##(e)
 Use random forests to analyze this data. What test MSE do you obtain? Use the importance() function to determine which variables are most important. Describe the effect of m, the number of variables considered at each split, on the error rate obtained.
@@ -132,7 +135,7 @@ rf.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 3, ntree = 
 yhat.rf <- predict(rf.carseats, newdata = Carseats.test)
 mean((yhat.rf - Carseats.test$Sales)^2)
 ```
-In this case, with m = $\sqrt{p}$, we have a Test MSE of 2.94.
+Random forests provide an improvement over bagged trees by way of a small tweak that decorrelates the trees. As in bagging, here I build a number of decision trees on bootstrapped training samples. But when building these decision trees, each time a split in a tree is considered, a random sample of m predictors is chosen as split candidates from the full set of p predictors.The split is allowed to use only one of those m predictors.In this case, with m = $\sqrt{p}$, we have a Test MSE of 2.94, which leads to a reduction in test error.
 ```{r}
 importance(rf.carseats)
 ```
@@ -142,3 +145,47 @@ In this case, the two most important variables are also the "Price" and "ShelveL
 Now analyze the data using BART, and report your results.
 
 ### 8.11
+This question uses the Caravan data set.
+##(a)
+Create a training set consisting of the first 1,000 observations,and a test set consisting of the remaining observations.
+```{r}
+set.seed(1)
+train <- 1:1000
+Caravan$Purchase <- ifelse(Caravan$Purchase == "Yes", 1, 0)
+Caravan.train <- Caravan[train, ]
+Caravan.test <- Caravan[-train, ]
+```
+
+##(b)
+Fit a boosting model to the training set with "Purchase" as the response and the other variables as predictors. Use 1,000 trees,and a shrinkage value of 0.01. Which predictors appear to be the most important?
+```{r}
+library(gbm)
+set.seed(1)
+boost.caravan <- gbm(Purchase ~ ., data = Caravan.train, distribution = "gaussian", n.trees = 1000, shrinkage = 0.01)
+summary(boost.caravan)
+```
+Here I use the "gbm" package, and within it the "gbm()" function, to fit boosted regression trees to the Caravan data set. I run "gbm()" with the option "distribution = 'gaussian'" since this is a regression problem. The argument "n.tree = 1000" indicates that here we want 1000 trees. The "summary()" function produces a relative plot and also outputs the relative influence statistics.The variables "PPERSAUT" and "MKOOPKLA" are the two most important variables.
+```{r}
+plot(boost.caravan, i = "PPERSAUT")
+plot(boost.caravan, i = "MKOOPKLA")
+```
+Here I also produce partial dependence plots for these two variables. These plots illustrate the marginal effect of the selected variables on the response after integrating out the other variables.
+
+##(c)
+Use the boosting model to predict the response on the test data. Predict that a person will make a purchase if the estimated probability of purchase is greater than 20%. Form a confusion matrix. What fraction of the people predicted to make a purchase do in fact make one? How does this compare with the results obtained from applying KNN or logistic regression to this data set?
+```{r}
+probs.test <- predict(boost.caravan, Caravan.test, n.trees = 1000, type = "response")
+pred.test <- ifelse(probs.test > 0.2, 1, 0)
+table(Caravan.test$Purchase, pred.test)
+```
+
+For boosting, the fraction of people predicted to make a purchase that in fact make one is 0.2156863.
+
+```{r}
+logit.caravan <- glm(Purchase ~ ., data = Caravan.train, family = "binomial")
+probs.test2 <- predict(logit.caravan, Caravan.test, type = "response")
+pred.test2 <- ifelse(probs.test > 0.2, 1, 0)
+table(Caravan.test$Purchase, pred.test2)
+```
+
+For logistic regression, the fraction of people predicted to make a purchase that in fact make one is again 0.2156863.
