@@ -1,0 +1,18 @@
+---
+title: "Chapter 9"
+author: "Tong Sun"
+date: "3/3/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,out.width="0.9\\linewidth",dev="pdf",fig.align  = 'center')
+```
+
+### 9.3
+
+### 9.5
+### 9.7
+### 9.8
