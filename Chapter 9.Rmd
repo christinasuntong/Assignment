@@ -25,7 +25,7 @@ plot(x1, x2, col = colors, xlim = c(0, 5), ylim = c(0, 5))
 ##(b)
 Sketch the optimal separating hyperplane, and provide the equation for this hyperplane (of the form (9.1)).
 
-As shown in the plot, the optimal separating hyperplane has to be between the observations (2,1) and (2,2), and between the observations (4,3) and (4,4). So it is a line that passes through the points (2,1.5) and (4,3.5) which equation is $X_1-X_2-0.5=0$.
+From the plot, the optimal separating hyperplane has to be between the group1 including points (2,1) and (2,2), and between the group2 including points (4,3) and (4,4). So with averaging the y-values of two group of points, the line is the one that passes through the points (2,1.5) and (4,3.5) which equation is $X_1-X_2-0.5=0$.
 ```{r}
 plot(x1, x2, col = colors, xlim = c(0, 5), ylim = c(0, 5))
 abline(-0.5, 1)
@@ -54,12 +54,97 @@ The support vectors are the points (2,1), (2,2), (4,3) and (4,4).
 ##(f)
 Argue that a slight movement of the seventh observation would not affect the maximal margin hyperplane.
 
+By examining the plot, it is clear that if we moved the observation(4,1), we would not change the maximal margin hyperplane as it is not a support vector.
+
 ##(g)
 Sketch a hyperplane that is not the optimal separating hyperplane, and provide the equation for this hyperplane.
 
+For example, the hyperplane which equation is $X_1-X_2-0.3=0$ is not the optimal separating hyperplane.
+```{r}
+plot(x1, x2, col = colors, xlim = c(0, 5), ylim = c(0, 5))
+abline(-0.3, 1)
+```
+
 ##(h)
 Draw an additional observation on the plot so that the two classes are no longer separable by a hyperplane.
+```{r}
+plot(x1, x2, col = colors, xlim = c(0, 5), ylim = c(0, 5))
+points(c(3), c(1), col = c("red"))
+```
+
+When the red point(3,1) is added to th plot, the two classes are obviously not separable by a hyperplane anymore.
 
 ### 9.5
+We have seen that we can fit an SVM with a non-linear kernel in order to perform classification using a non-linear decision boundary. We will now see that we can also obtain a non-linear decision boundary by performing logistic regression using non-linear transformations of the features.
+##(a)
+Generate a data set with n = 500 and p = 2, such that the observations belong to two classes with a quadratic decision boundary between them. For instance, you can do this as follows:
+```{r}
+x1 <- runif(500) - 0.5
+x2 <- runif(500) - 0.5
+y <- 1*(x1^2 - x2^2 > 0)
+```
+
+##(b)
+Plot the observations, colored according to their class labels.Your plot should display $X_1$ on the x-axis, and $X_2$ on the y-axis.
+```{r}
+plot(x1, x2, xlab = "X1", ylab = "X2", col = (3-y), pch = (3-y))
+```
+
+##(c)
+Fit a logistic regression model to the data, using $X_1$ and $X_2$ as predictors.
+```{r}
+logistic <- glm(y ~ x1 + x2, family = "binomial")
+summary(logistic)
+```
+
+##(d)
+Apply this model to the training data in order to obtain a predicted class label for each training observation.Plot the observations, colored according to the predicted class labels. The decision boundary should be linear.
+```{r}
+data <- data.frame(x1 = x1, x2 = x2, y = y)
+probs <- predict(logistic, data, type = "response")
+preds <- rep(0, 500)
+preds[probs > 0.5] <- 1
+plot(data[preds == 1, ]$x1, data[preds == 1, ]$x2, col = (3-1), pch = (3-1), xlab = "X1", ylab = "X2")
+points(data[preds == 0, ]$x1, data[preds == 0, ]$x2, col = (3-0), pch = (3-0))
+```
+From the plot, I can make the conclusion that the decision boundary is obviously linear.
+
+##(e)
+Now fit a logistic regression model to the data using non-linear
+functions of $X_1$ and $X_2$ as predictors (e.g.${X_1}^2$, $X_1*X_2$, $log(X_2)$,and so forth).
+```{r}
+logistic_nonlinear <- glm(y ~ poly(x1, 2) + poly(x2, 2) + I(x1 * x2), family = "binomial")
+summary(logistic_nonlinear)
+```
+##(f)
+Apply this model to the training data in order to obtain a predicted class label for each training observation. Plot the observations, colored according to the predicted class labels. The decision boundary should be obviously non-linear. If it is not, then repeat (a)-(e) until you come up with an example in which the predicted class labels are obviously non-linear.
+```{r}
+
+```
+
+
+##(g)
+Fit a support vector classifier to the data with $X_1$ and $X_2$ as predictors. Obtain a class prediction for each training observation. Plot the observations,colored according to the predicted class labels.
+
+##(h)
+Fit a SVM using a non-linear kernel to the data. Obtain a class prediction for each training observation. Plot the observations,colored according to the predicted class labels.
+
+##(i)
+Comment on your results.
+
 ### 9.7
+In this problem, you will use support vector approaches in order to predict whether a given car gets high or low gas mileage based on the Auto data set.
+##(a)
+Create a binary variable that takes on a 1 for cars with gas mileage above the median, and a 0 for cars with gas mileage below the median.
+
+##(b)
+Fit a support vector classifier to the data with various values of "cost", in order to predict whether a car gets high or low gas mileage. Report the cross-validation errors associated with different values of this parameter. Comment on your results. Note you will need to fit the classifier without the gas mileage variable
+to produce sensible results.
+
+##(c)
+Now repeat (b), this time using SVMs with radial and polynomial basis kernels, with different values of "gamma" and "degree" and "cost". Comment on your results.
+
+##(d)
+Make some plots to back up your assertions in (b) and (c).
+
 ### 9.8
