@@ -119,15 +119,32 @@ summary(logistic_nonlinear)
 ##(f)
 Apply this model to the training data in order to obtain a predicted class label for each training observation. Plot the observations, colored according to the predicted class labels. The decision boundary should be obviously non-linear. If it is not, then repeat (a)-(e) until you come up with an example in which the predicted class labels are obviously non-linear.
 ```{r}
-
+probs <- predict(logistic_nonlinear, data, type= "response")
+preds <- rep(0, 500)
+preds[probs > 0.5] <- 1
+plot(data[preds == 1, ]$x1, data[preds == 1, ]$x2, col = (3-1), pch = (3-1), xlab = "X1", ylab = "X2")
+points(data[preds == 0, ]$x1, data[preds == 0, ]$x2, col = (3-0), pch = (3-0))
 ```
-
+The non-linear decision boundary is surprisingly very similar to the true decision boundary.
 
 ##(g)
 Fit a support vector classifier to the data with $X_1$ and $X_2$ as predictors. Obtain a class prediction for each training observation. Plot the observations,colored according to the predicted class labels.
+```{r}
+library(e1071)
+data$y <- as.factor(data$y)
+svm <- svm(y ~ x1 + x2, data, kernel = "linear", cost = 0.01)
+preds <- predict(svm, data)
+plot(data[preds == 0, ]$x1, data[preds == 0, ]$x2, col = (3-0), pch = (3-0), xlab = "X1", ylab = "X2")
+points(data[preds == 1, ]$x1, data[preds == 1, ]$x2, col = (3-1), pch =(3-1))
+```
 
 ##(h)
-Fit a SVM using a non-linear kernel to the data. Obtain a class prediction for each training observation. Plot the observations,colored according to the predicted class labels.
+Fit a SVM using a non-linear kernel to the data.Obtain a class prediction for each training observation.Plot the observations,colored according to the predicted class labels.
+```{r}
+data$y <- as.factor(data$y)
+svm_
+```
+
 
 ##(i)
 Comment on your results.
