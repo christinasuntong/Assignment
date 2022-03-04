@@ -22,14 +22,43 @@ colors <- c("red", "red", "red", "red", "blue", "blue", "blue")
 plot(x1, x2, col = colors, xlim = c(0, 5), ylim = c(0, 5))
 ```
 
-
 ##(b)
+Sketch the optimal separating hyperplane, and provide the equation for this hyperplane (of the form (9.1)).
+
+As shown in the plot, the optimal separating hyperplane has to be between the observations (2,1) and (2,2), and between the observations (4,3) and (4,4). So it is a line that passes through the points (2,1.5) and (4,3.5) which equation is $X_1-X_2-0.5=0$.
+```{r}
+plot(x1, x2, col = colors, xlim = c(0, 5), ylim = c(0, 5))
+abline(-0.5, 1)
+```
+
 ##(c)
+Describe the classification rule for the maximal margin classifier. It should be something along the lines of “Classify to Red if $\beta_0+\beta_1X_1+\beta_2X_2>0$,and classify to Blue otherwise.” Provide the values for $\beta_0$, $\beta_1$, and $\beta_2$.
+
+The classification rule is that classifying to Red if $X_1-X_2-0.5<0$, and classify to Blue otherwise.
+
 ##(d)
+On your sketch, indicate the margin for the maximal margin hyperplane.
+```{r}
+plot(x1, x2, col = colors, xlim = c(0, 5), ylim = c(0, 5))
+abline(-0.5, 1)
+abline(-1, 1, lty = 2)
+abline(0, 1, lty = 2)
+```
+The margin is here equal to 0.25.
+
 ##(e)
+Indicate the support vectors for the maximal margin classifier.
+
+The support vectors are the points (2,1), (2,2), (4,3) and (4,4).
+
 ##(f)
+Argue that a slight movement of the seventh observation would not affect the maximal margin hyperplane.
+
 ##(g)
+Sketch a hyperplane that is not the optimal separating hyperplane, and provide the equation for this hyperplane.
+
 ##(h)
+Draw an additional observation on the plot so that the two classes are no longer separable by a hyperplane.
 
 ### 9.5
 ### 9.7
