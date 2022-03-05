@@ -27,7 +27,7 @@ Explain why this is the case. You can begin with (8.12) in Algorithm 8.2.
 Consider the Gini index, classification error, and entropy in a simple classification setting with two classes. Create a single plot that displays each of these quantities as a function of $\hat p_{m1}$ The x-axis should display $\hat p_{m1}$, ranging from 0 to 1, and the y-axis should display the value of the Gini index, classification error, and entropy.
 Hint: In a setting with two classes, $\hat p_{m1}$ = 1 − $\hat p_{m2}$. You could make this plot by hand, but it will be much easier to make in R.
 
-```{r}
+```{r echo=FALSE}
 p <- seq(0, 1, 0.01)
 gini.index <- 2*p*(1-p)
 class.error <- 1 - pmax(p, 1-p)
@@ -42,7 +42,7 @@ With the majority vote approach, the conclusion of this question is X is red bec
 
 ### 8.7
 In the lab, we applied random forests to the Boston data using "mtry = 6" and using "ntree = 25" and "ntree = 500". Create a plot displaying the test error resulting from random forests on this data set for a more comprehensive range of values for "mtry" and "ntree". You can model your plot after Figure 8.10. Describe the results obtained.
-```{r}
+```{r echo=FALSE}
 library(randomForest)
 library(MASS)
 set.seed(1000)
@@ -67,7 +67,7 @@ Results from random forests for the data set with p = 500 predictors. The test e
 In the lab, a classification tree was applied to the Carseats data set after converting Sales into a qualitative response variable. Now we will seek to predict Sales using regression trees and related approaches, treating the response as a quantitative variable.
 ##(a)
 Split the data set into a training set and a test set.
-```{r}
+```{r echo=FALSE}
 library(ISLR)
 train <- sample(1:nrow(Carseats), nrow(Carseats) / 2)
 Carseats.train <- Carseats[train, ]
@@ -76,20 +76,20 @@ Carseats.test <- Carseats[-train, ]
 
 ##(b)
 Fit a regression tree to the training set. Plot the tree, and interpret the results. What test MSE do you obtain?
-```{r}
+```{r echo=FALSE}
 library(tree)
 tree.carseats <- tree(Sales ~ ., data = Carseats.train)
 summary(tree.carseats)
 ```
 Here I fit a regression tree to the Carseats data set. First, I create a training set and fit the tree to the training data. The output of "summary()" indicates that only seven variables have been used in constructing the tree. The deviance is simply the sum of squared errors for the tree.
 
-```{r}
+```{r echo=FALSE}
 plot(tree.carseats)
 text(tree.carseats, pretty = 0)
 ```
 From the regression tree plot, the split at the top of the tree results in two large branches. The left-hand branch corresponds to "ShelveLoc" in "Good" level, and the right-hand branch corresponds to "ShelveLoc" in "Bad & Medium" level. And also the predictor "ShelveLoc" is the most important factor in determining "Sales". The number in each leaf is the mean of the response for the observations that fall there.
 
-```{r}
+```{r echo=FALSE}
 yhat <- predict(tree.carseats, newdata = Carseats.test)
 mean((yhat - Carseats.test$Sales)^2)
 ```
@@ -97,19 +97,19 @@ The conclusion is that the Test MSE is about 4.35.
 
 ##(c)
 Use cross-validation in order to determine the optimal level of tree complexity. Does pruning the tree improve the test MSE?
-```{r}
+```{r echo=FALSE}
 cv.carseats <- cv.tree(tree.carseats)
 plot(cv.carseats$size, cv.carseats$dev, type = "b")
 tree.min <- which.min(cv.carseats$dev)
 points(tree.min, cv.carseats$dev[tree.min], col = "blue", cex = 2, pch = 20)
 ```
 The process described above may produce good predictions on the training set, but is likely to overfit the data, leading to poor test set performance. This is because the resulting tree might be too complex. So here I use the "cv.tree()" function to see whether pruning the tree will improve performance.In this case, the most complex tree under consideration is selected by cross-validation.  In this case, the tree of size 8 is selected by cross-validation. We now prune the tree to obtain the 8-node tree.
-```{r}
+```{r echo=FALSE}
 prune.carseats <- prune.tree(tree.carseats, best = 8)
 plot(prune.carseats)
 text(prune.carseats, pretty = 0)
 ```
-```{r}
+```{r echo=FALSE}
 yhat <- predict(prune.carseats, newdata = Carseats.test)
 mean((yhat - Carseats.test$Sales)^2)
 ```
@@ -117,38 +117,59 @@ I find that pruning the tree increases the Test MSE to 4.68.
 
 ##(d)
 Use the bagging approach in order to analyze this data. What test MSE do you obtain? Use the importance() function to determine which variables are most important.
-```{r}
+```{r echo=FALSE}
 bag.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 10, ntree = 500, importance = TRUE)
 yhat.bag <- predict(bag.carseats, newdata = Carseats.test)
 mean((yhat.bag - Carseats.test$Sales)^2)
 ```
 I find that bagging decreases the Test MSE to 2.48.
-```{r}
+```{r echo=FALSE}
 importance(bag.carseats)
 ```
 We may conclude that "ShelveLoc" and "Price" are the two most important variables.
 
 ##(e)
 Use random forests to analyze this data. What test MSE do you obtain? Use the importance() function to determine which variables are most important. Describe the effect of m, the number of variables considered at each split, on the error rate obtained.
-```{r}
+```{r echo=FALSE}
 rf.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 3, ntree = 500, importance = TRUE)
 yhat.rf <- predict(rf.carseats, newdata = Carseats.test)
 mean((yhat.rf - Carseats.test$Sales)^2)
 ```
 Random forests provide an improvement over bagged trees by way of a small tweak that decorrelates the trees. As in bagging, here I build a number of decision trees on bootstrapped training samples. But when building these decision trees, each time a split in a tree is considered, a random sample of m predictors is chosen as split candidates from the full set of p predictors.The split is allowed to use only one of those m predictors.In this case, with m = $\sqrt{p}$, we have a Test MSE of 2.94, which leads to a reduction in test error.
-```{r}
+```{r echo=FALSE}
 importance(rf.carseats)
 ```
 In this case, the two most important variables are also the "Price" and "ShelveLoc".
 
 ##(f)
 Now analyze the data using BART, and report your results.
+```{r echo=FALSE}
+library(BART)
+x <- Carseats[ , 2:11]
+y <- Carseats[ , "Sales"]
+xtrain <- x[train, ]
+ytrain <- y[train]
+xtest <- x[-train, ]
+ytest <- y[-train]
+set.seed(1)
+bartfit <- gbart(xtrain, ytrain, x.test = xtest)
+```
+```{r echo=FALSE}
+# Compute the test error
+yhat.bart <- bartfit$yhat.test.mean
+mean((ytest - yhat.bart)^2)
+```
+On this data set, the test error of BART is 1.62, lower than the test error of random forests and boosting. Next I check how many times each variable appeared in the collection of trees.
+```{r echo=FALSE}
+ord <- order(bartfit$varcount.mean, decreasing = T)
+bartfit$varcount.mean[ord]
+```
 
 ### 8.11
 This question uses the Caravan data set.
 ##(a)
 Create a training set consisting of the first 1,000 observations,and a test set consisting of the remaining observations.
-```{r}
+```{r echo=FALSE}
 set.seed(1)
 train <- 1:1000
 Caravan$Purchase <- ifelse(Caravan$Purchase == "Yes", 1, 0)
@@ -158,14 +179,14 @@ Caravan.test <- Caravan[-train, ]
 
 ##(b)
 Fit a boosting model to the training set with "Purchase" as the response and the other variables as predictors. Use 1,000 trees,and a shrinkage value of 0.01. Which predictors appear to be the most important?
-```{r}
+```{r echo=FALSE}
 library(gbm)
 set.seed(1)
 boost.caravan <- gbm(Purchase ~ ., data = Caravan.train, distribution = "gaussian", n.trees = 1000, shrinkage = 0.01)
 summary(boost.caravan)
 ```
 Here I use the "gbm" package, and within it the "gbm()" function, to fit boosted regression trees to the Caravan data set. I run "gbm()" with the option "distribution = 'gaussian'" since this is a regression problem. The argument "n.tree = 1000" indicates that here we want 1000 trees. The "summary()" function produces a relative plot and also outputs the relative influence statistics.The variables "PPERSAUT" and "MKOOPKLA" are the two most important variables.
-```{r}
+```{r echo=FALSE}
 plot(boost.caravan, i = "PPERSAUT")
 plot(boost.caravan, i = "MKOOPKLA")
 ```
@@ -173,7 +194,7 @@ Here I also produce partial dependence plots for these two variables. These plot
 
 ##(c)
 Use the boosting model to predict the response on the test data. Predict that a person will make a purchase if the estimated probability of purchase is greater than 20%. Form a confusion matrix. What fraction of the people predicted to make a purchase do in fact make one? How does this compare with the results obtained from applying KNN or logistic regression to this data set?
-```{r}
+```{r echo=FALSE}
 probs.test <- predict(boost.caravan, Caravan.test, n.trees = 1000, type = "response")
 pred.test <- ifelse(probs.test > 0.2, 1, 0)
 table(Caravan.test$Purchase, pred.test)
@@ -181,7 +202,7 @@ table(Caravan.test$Purchase, pred.test)
 
 For boosting, the fraction of people predicted to make a purchase that in fact make one is 0.2156863.
 
-```{r}
+```{r echo=FALSE}
 logit.caravan <- glm(Purchase ~ ., data = Caravan.train, family = "binomial")
 probs.test2 <- predict(logit.caravan, Caravan.test, type = "response")
 pred.test2 <- ifelse(probs.test > 0.2, 1, 0)
