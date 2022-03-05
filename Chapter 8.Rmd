@@ -12,8 +12,7 @@ knitr::opts_chunk$set(echo = TRUE,out.width="0.9\\linewidth",dev="pdf",fig.align
 ```
 
 ### 8.1
-Draw an example (of your own invention) of a partition of two-dimensional feature space that could result from recursive binary splitting. Your example should contain at least six regions. Draw a
-decision tree corresponding to this partition. Be sure to label all aspects of your figures, including the regions $R_1$, $R_2$,..., the cutpoints $t_1$, $t_2$,..., and so forth.
+Draw an example (of your own invention) of a partition of two-dimensional feature space that could result from recursive binary splitting. Your example should contain at least six regions. Draw a decision tree corresponding to this partition. Be sure to label all aspects of your figures, including the regions $R_1$, $R_2$,..., the cutpoints $t_1$, $t_2$,..., and so forth.
 Hint: Your result should look something like Figures 8.1 and 8.2.
 
 ![my answer](/Users/christinasun/Desktop/MA679/Assignment/8.1.jpeg)
@@ -24,8 +23,8 @@ Explain why this is the case. You can begin with (8.12) in Algorithm 8.2.
 ![my answer](/Users/christinasun/Desktop/MA679/Assignment/8.2.jpeg)
 
 ### 8.3
-Consider the Gini index, classification error, and entropy in a simple classification setting with two classes. Create a single plot that displays each of these quantities as a function of $\hat p_{m1}$ The x-axis should display $\hat p_{m1}$, ranging from 0 to 1, and the y-axis should display the value of the Gini index, classification error, and entropy.
-Hint: In a setting with two classes, $\hat p_{m1}$ = 1 − $\hat p_{m2}$. You could make this plot by hand, but it will be much easier to make in R.
+Consider the Gini index, classification error, and entropy in a simple classification setting with two classes. Create a single plot that displays each of these quantities as a function of $\hat p_{m1}$ The x axis should display $\hat p_{m1}$, ranging from 0 to 1, and the y axis should display the value of the Gini index, classification error, and entropy.
+Hint: In a setting with two classes, $\hat p_{m1} = 1-\hat p_{m2}$. You could make this plot by hand, but it will be much easier to make in R.
 
 ```{r echo=FALSE}
 p <- seq(0, 1, 0.01)
@@ -36,12 +35,13 @@ matplot(p, cbind(gini.index, class.error, cross.entropy), col = c("red", "green"
 ```
 
 ### 8.5
-Suppose we produce ten bootstrapped samples from a data set containing red and green classes. We then apply a classification tree to each bootstrapped sample and, for a specific value of X, produce 10 estimates of P(Class is Red|X): 0.1, 0.15, 0.2, 0.2, 0.55, 0.6, 0.6, 0.65, 0.7, and 0.75. There are two common ways to combine these results together into a single class prediction. One is the majority vote approach discussed in this chapter. The second approach is to classify based on the average probability. In this example, what is the final classification under each of these two approaches?
+Suppose we produce ten bootstrapped samples from a data set containing red and green classes. We then apply a classification tree to each bootstrapped sample and, for a specific value of X, produce 10 estimates of P(Class is Red): 0.1, 0.15, 0.2, 0.2, 0.55, 0.6, 0.6, 0.65, 0.7, and 0.75. There are two common ways to combine these results together into a single class prediction. One is the majority vote approach discussed in this chapter. The second approach is to classify based on the average probability. In this example, what is the final classification under each of these two approaches?
 
 With the majority vote approach, the conclusion of this question is X is red because there are 6 for red and 4 for green among these 10 predictions. And with the average probability approach, the conclusion is that X is green, because the average of these 10 probabilities is $\frac{0.1+0.15+0.2+0.2+0.55+0.6+0.6+0.65+0.7+0.75}{10}=0.45$, which is lower than 0.5.
 
 ### 8.7
 In the lab, we applied random forests to the Boston data using "mtry = 6" and using "ntree = 25" and "ntree = 500". Create a plot displaying the test error resulting from random forests on this data set for a more comprehensive range of values for "mtry" and "ntree". You can model your plot after Figure 8.10. Describe the results obtained.
+
 ```{r echo=FALSE}
 library(randomForest)
 library(MASS)
@@ -61,7 +61,7 @@ lines(1:500, forest.p2$test$mse, col = "red", type = "l")
 lines(1:500, forest.p.sqrt$test$mse, col = "green", type = "l")
 legend("topright", c("m=p", "m=p/2", "m=sqrt(p)"), col = c("blue", "red", "green"), cex = 1, lty = 1)
 ```
-Results from random forests for the data set with p = 500 predictors. The test error is displayed as a function of the number of trees. Each colored line corresponds to a different value of m, the number of predictors available for splitting at each interior tree node. Random forests (m=p/2) lead to a slight improvement over bagging (m=p). We may also see that the Test MSE is very high for a single tree, it decreases as the number of trees increases. But from this plot, the difference between these three Test MSEs are not so significant although the Test MSE for all predictors is higher than for half the predictors or the square root of the number of predictors.
+Results from random forests for the data set with p = 500 predictors. The test error is displayed as a function of the number of trees. Each colored line corresponds to a different value of m, the number of predictors available for splitting at each interior tree node. Random forests ($m=p/2$) lead to a slight improvement over bagging (m=p). We may also see that the Test MSE is very high for a single tree, it decreases as the number of trees increases. But from this plot, the difference between these three Test MSEs are not so significant although the Test MSE for all predictors is higher than for half the predictors or the square root of the number of predictors.
 
 ### 8.8
 In the lab, a classification tree was applied to the Carseats data set after converting Sales into a qualitative response variable. Now we will seek to predict Sales using regression trees and related approaches, treating the response as a quantitative variable.
@@ -87,7 +87,7 @@ Here I fit a regression tree to the Carseats data set. First, I create a trainin
 plot(tree.carseats)
 text(tree.carseats, pretty = 0)
 ```
-From the regression tree plot, the split at the top of the tree results in two large branches. The left-hand branch corresponds to "ShelveLoc" in "Good" level, and the right-hand branch corresponds to "ShelveLoc" in "Bad & Medium" level. And also the predictor "ShelveLoc" is the most important factor in determining "Sales". The number in each leaf is the mean of the response for the observations that fall there.
+From the regression tree plot, the split at the top of the tree results in two large branches. The left-hand branch corresponds to "ShelveLoc" in "Good" level, and the right-hand branch corresponds to "ShelveLoc" in "Bad and Medium" level. And also the predictor "ShelveLoc" is the most important factor in determining "Sales". The number in each leaf is the mean of the response for the observations that fall there.
 
 ```{r echo=FALSE}
 yhat <- predict(tree.carseats, newdata = Carseats.test)
