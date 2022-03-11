@@ -135,7 +135,7 @@ The non-linear decision boundary is surprisingly very similar to the true decisi
 Fit a support vector classifier to the data with $X_1$ and $X_2$ as predictors. Obtain a class prediction for each training observation. Plot the observations,colored according to the predicted class labels.
 ```{r}
 library(e1071)
-svm <- svm(as.factor(y) ~ x1 + x2, data, kernel = "linear", cost = 0.01)
+model <- svm(as.factor(y) ~ x1 + x2, data, kernel = "linear", cost = 0.01)
 svm.pred <- predict(svm, data)
 data5 <- data[svm.pred == 1, ]
 data6 <- data[svm.pred == 0, ]
@@ -160,22 +160,115 @@ In this problem, you will use support vector approaches in order to predict whet
 Create a binary variable that takes on a 1 for cars with gas mileage above the median, and a 0 for cars with gas mileage below the median.
 ```{r}
 library(ISLR)
-gas.med <- median(Auto$mpg)
-new.var <- ifelse(Auto$mpg > gas.med, 1, 0)
-Auto$mpglevel <- as.factor(new.var)
+var <- ifelse(Auto$mpg > median(Auto$mpg), 1, 0)
+Auto$mpglevel <- as.factor(var)
 ```
 
 ##(b)
 Fit a support vector classifier to the data with various values of "cost", in order to predict whether a car gets high or low gas mileage. Report the cross-validation errors associated with different values of this parameter. Comment on your results. Note you will need to fit the classifier without the gas mileage variable to produce sensible results.
 ```{r}
-
+set.seed(1)
+### SVM
+tune_out <- tune(e1071::svm, mpglevel ~ ., data = Auto, kernel = "linear", ranges = list(cost =  c(0.01, 0.1, 1, 5, 10, 100, 1000)))
+summary(tune_out)
 ```
-
+A cost of 0.01 seems to perform best.
 
 ##(c)
 Now repeat (b), this time using SVMs with radial and polynomial basis kernels, with different values of "gamma" and "degree" and "cost". Comment on your results.
+```{r}
+set.seed(1)
+tune.out <- tune(e1071::svm, mpglevel ~ ., data = Auto, kernel = "polynomial", ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100), degree = c(2, 3, 4)))
+summary(tune.out)
+```
+
+For a polynomial kernel, the lowest cross-validation error is obtained for a degree of 3 and a cost of 100.
+```{r}
+
+```
 
 ##(d)
 Make some plots to back up your assertions in (b) and (c).
 
 ### 9.8
+This problem involves the OJ data set which is part of the ISLR2 package.
+##(a)
+Create a training set containing a random sample of 800 observations, and a test set containing the remaining observations.
+```{r}
+set.seed(1)
+train <- sample(nrow(OJ), 800)
+OJ.train <- OJ[train, ]
+OJ.test <- OJ[-train, ]
+```
+
+##(b)
+Fit a support vector classifier to the training data using cost = 0.01, with Purchase as the response and the other variables as predictors. Use the summary() function to produce summary statistics, and describe the results obtained.
+```{r}
+svm.linear <- svm(Purchase ~ ., data = OJ.train, kernel = "linear", cost = 0.01)
+summary(svm.linear)
+```
+Support vector classifier creates 435 support vectors out of 800 training points. Out of these, 216 belong to level MM and remaining 219 belong to level CH.
+
+##(c)
+What are the training and test error rates?
+```{r}
+train.pred <- predict(svm.linear, OJ.train)
+table(OJ.train$Purchase, train.pred)
+```
+
+```{r}
+trainingrate <- (75 + 65) / (420 + 65 + 75 + 240)
+trainingrate
+```
+
+```{r}
+test.pred <- predict(svm.linear, OJ.test)
+table(OJ.test$Purchase, test.pred)
+```
+
+```{r}
+testrate <- (33 + 15) / (153 + 15 + 33 + 69)
+testrate
+```
+The training error rate is 17.5% , the test error rate is 17.8%.
+
+##(d)
+Use the tune() function to select an optimal cost. Consider values in the range 0.01 to 10.
+```{r}
+set.seed(2)
+model <- svm(Purchase ~ ., data = OJ.train)
+tune.out <- tune(e1071::svm, Purchase ~ ., data = OJ.train, kernel = "linear", ranges = list(cost = 10^seq(-2, 1, by = 0.25)))
+summary(tune.out)
+```
+Here the optimal cost is 0.18.
+
+##(e)
+Compute the training and test error rates using this new value for cost.
+```{r}
+svm.linear <- svm(Purchase ~ ., kernel = "linear", data = OJ.train, cost = tune.out$best.parameters$cost)
+train.pred <- predict(svm.linear, OJ.train)
+table(OJ.train$Purchase, train.pred)
+```
+```{r}
+trainingerror <- (70+64) / (421+64+70+245)
+trainingerror
+```
+
+```{r}
+test.pred <- predict(svm.linear, OJ.test)
+table(OJ.test$Purchase, test.pred)
+testerror <- (31+15) / (153+15+31+71)
+testerror
+```
+ 
+We may see that, with the best cost, the trainging error rate is 16.75% and the test error rate is 17.04%.
+
+##(f)
+Repeat parts (b) through (e) using a support vector machine
+with a radial kernel. Use the default value for gamma.
+
+##(g)
+Repeat parts (b) through (e) using a support vector machine with a polynomial kernel. Set degree = 2.
+
+##(h)
+Overall, which approach seems to give the best results on this data?
