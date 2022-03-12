@@ -167,7 +167,7 @@ Auto$mpglevel <- as.factor(var)
 ##(b)
 Fit a support vector classifier to the data with various values of "cost", in order to predict whether a car gets high or low gas mileage. Report the cross-validation errors associated with different values of this parameter. Comment on your results. Note you will need to fit the classifier without the gas mileage variable to produce sensible results.
 ```{r}
-set.seed(1)
+set.seed(2022)
 ### SVM
 tune_out <- tune(e1071::svm, mpglevel ~ ., data = Auto, kernel = "linear", ranges = list(cost =  c(0.01, 0.1, 1, 5, 10, 100, 1000)))
 summary(tune_out)
@@ -177,25 +177,45 @@ A cost of 0.01 seems to perform best.
 ##(c)
 Now repeat (b), this time using SVMs with radial and polynomial basis kernels, with different values of "gamma" and "degree" and "cost". Comment on your results.
 ```{r}
-set.seed(1)
-tune.out <- tune(e1071::svm, mpglevel ~ ., data = Auto, kernel = "polynomial", ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100), degree = c(2, 3, 4)))
-summary(tune.out)
+set.seed(2022)
+tune.out1 <- tune(e1071::svm, mpglevel ~ ., data = Auto, kernel = "polynomial", ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100), degree = c(2, 3, 4)))
+summary(tune.out1)
 ```
 
 For a polynomial kernel, the lowest cross-validation error is obtained for a degree of 3 and a cost of 100.
 ```{r}
-
+set.seed(2022)
+tune.out2 <- tune(e1071::svm, mpglevel ~ ., data = Auto, kernel = "radial", ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100), gamma = c(0.01, 0.1, 1, 5, 10, 100)))
+summary(tune.out2)
 ```
+For the radial kernel, the lowest cross-validation error is obtained for a gamma of 0.01 and a cost of 0.1.
 
 ##(d)
 Make some plots to back up your assertions in (b) and (c).
+```{r}
+linear <- svm(mpglevel ~ ., data = Auto, kernel = "linear", cost = 0.01)
+poly <- svm(mpglevel ~ ., data = Auto, kernel = "polynomial", cost = 100, degree = 3)
+radial <- svm(mpglevel ~ ., data = Auto, kernel = "radial", cost = 0.1, gamma = 0.01)
+plotpairs <- function(fit){
+  for (name in names(Auto)[!(names(Auto) %in% c("mpg","mpglevel","name"))]){
+    plot(fit, Auto, as.formula(paste("mpg~", name, sep = "")))
+  }
+}
+plotpairs(linear)
+```
+```{r}
+plotpairs(poly)
+```
+```{r}
+plotpairs(radial)
+```
 
 ### 9.8
 This problem involves the OJ data set which is part of the ISLR2 package.
 ##(a)
 Create a training set containing a random sample of 800 observations, and a test set containing the remaining observations.
 ```{r}
-set.seed(1)
+set.seed(2022)
 train <- sample(nrow(OJ), 800)
 OJ.train <- OJ[train, ]
 OJ.test <- OJ[-train, ]
@@ -235,12 +255,12 @@ The training error rate is 17.5% , the test error rate is 17.8%.
 ##(d)
 Use the tune() function to select an optimal cost. Consider values in the range 0.01 to 10.
 ```{r}
-set.seed(2)
+set.seed(2022)
 model <- svm(Purchase ~ ., data = OJ.train)
 tune.out <- tune(e1071::svm, Purchase ~ ., data = OJ.train, kernel = "linear", ranges = list(cost = 10^seq(-2, 1, by = 0.25)))
 summary(tune.out)
 ```
-Here the optimal cost is 0.18.
+Here the optimal cost is 0.03.
 
 ##(e)
 Compute the training and test error rates using this new value for cost.
@@ -250,25 +270,122 @@ train.pred <- predict(svm.linear, OJ.train)
 table(OJ.train$Purchase, train.pred)
 ```
 ```{r}
-trainingerror <- (70+64) / (421+64+70+245)
+trainingerror <- (70+58) / (435+58+70+237)
 trainingerror
 ```
 
 ```{r}
 test.pred <- predict(svm.linear, OJ.test)
 table(OJ.test$Purchase, test.pred)
-testerror <- (31+15) / (153+15+31+71)
+testerror <- (31+23) / (137+23+31+79)
 testerror
 ```
  
-We may see that, with the best cost, the trainging error rate is 16.75% and the test error rate is 17.04%.
+We may see that, with the best cost, the trainging error rate is 16% and the test error rate is 20%.
 
 ##(f)
 Repeat parts (b) through (e) using a support vector machine
 with a radial kernel. Use the default value for gamma.
+```{r}
+svm.radial <- svm(Purchase ~ ., data = OJ.train, kernel = "radial")
+summary(svm.radial)
+```
+```{r}
+train.pred <- predict(svm.radial, OJ.train)
+table(OJ.train$Purchase, train.pred)
+```
+```{r}
+trainerror <- (77+32) / (461+32+77+230)
+trainerror
+```
+```{r}
+test.pred <- predict(svm.radial, OJ.test)
+table(OJ.test$Purchase, test.pred)
+```
+```{r}
+testerror <- (32+22) / (138+22+32+78)
+testerror
+```
+Radial kernel with default gamma creates 368 support vectors, out of which, 181 belong to level CH and remaining 187 belong to level MM.The classifier has a training error of 13.63% and a test error of 20% which is a slight improvement over linear kernel.Next I use cross validation to find optimal cost.
+```{r}
+set.seed(2022)
+tune.out <- tune(e1071::svm, Purchase ~ ., data = OJ.train, kernel = "radial", ranges = list(cost = 10^seq(-2,1, by = 0.25)))
+summary(tune.out)
+```
+
+```{r}
+svm.radial1 <- svm(Purchase ~ ., kernel = "radial", data = OJ.train, cost = tune.out$best.parameters$cost)
+summary(svm.radial1)
+```
+```{r}
+train.pred1 <- predict(svm.radial1, OJ.train)
+table(OJ.train$Purchase, train.pred1)
+```
+```{r}
+error.train <- (78+31) / (462+31+78+229)
+error.train
+```
+```{r}
+test.pred1 <- predict(svm.radial1, OJ.test)
+table(OJ.test$Purchase, test.pred1)
+```
+```{r}
+error.test <- (33+22)/(138+22+33+77)
+error.test
+```
+Tuning does not reduce train and test error rates significantly when I use the optimal best cost.
 
 ##(g)
 Repeat parts (b) through (e) using a support vector machine with a polynomial kernel. Set degree = 2.
+```{r}
+svm.polynomial <- svm(Purchase ~ ., data = OJ.train, kernel = "polynomial", degree = 2)
+summary(svm.polynomial)
+```
+```{r}
+train.pred <- predict(svm.polynomial, OJ.train)
+table(OJ.train$Purchase, train.pred)
+```
+```{r}
+trainerror.poly <- (107+26) / (467+26+107+200)
+trainerror.poly
+```
+```{r}
+test.pred <- predict(svm.polynomial, OJ.test)
+table(OJ.test$Purchase, test.pred)
+```
+```{r}
+testerror.poly <- (41+19) / (141+19+41+69)
+testerror.poly
+```
+Polynomial kernel with default gamma creates 449 support vectors, out of which, 223 belong to level CH and 226 belong to level MM.The classifier has a training error of 16.63% and a test error of 22.22% which is no improvement over linear kernel.
+```{r}
+set.seed(2022)
+tune.out <- tune(e1071::svm, Purchase ~ ., data = OJ.train, kernel = "polynomial", degree = 2, ranges = list(cost = 10^seq(-2,1, by = 0.25)))
+summary(tune.out)
+```
+```{r}
+svm.poly1 <- svm(Purchase ~ ., kernel = "polynomial", degree = 2, data = OJ.train, cost = tune.out$best.parameters$cost)
+summary(svm.poly1)
+```
+```{r}
+train.pred <- predict(svm.poly1, OJ.train)
+table(OJ.train$Purchase, train.pred)
+```
+```{r}
+train_error <- (86+29) / (464+29+86+221)
+train_error
+```
+```{r}
+test.pred <- predict(svm.poly1, OJ.test)
+table(OJ.test$Purchase, test.pred)
+```
+```{r}
+test_error <- (37+19) / (141+19+37+73)
+test_error
+```
+Here I find that tuning reduce train error rate to 14.38% and test error rate to 20.74%.
 
 ##(h)
 Overall, which approach seems to give the best results on this data?
+
+Overall, radial basis kernel seems to be producing minimum misclassification error on both train and test data.
