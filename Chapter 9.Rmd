@@ -79,7 +79,7 @@ We have seen that we can fit an SVM with a non-linear kernel in order to perform
 ##(a)
 Generate a data set with n = 500 and p = 2, such that the observations belong to two classes with a quadratic decision boundary between them. For instance, you can do this as follows:
 ```{r}
-set.seed(1)
+set.seed(2022)
 x1 <- runif(500) - 0.5
 x2 <- runif(500) - 0.5
 y <- 1*(x1^2 - x2^2 > 0)
@@ -135,8 +135,8 @@ The non-linear decision boundary is surprisingly very similar to the true decisi
 Fit a support vector classifier to the data with $X_1$ and $X_2$ as predictors. Obtain a class prediction for each training observation. Plot the observations,colored according to the predicted class labels.
 ```{r}
 library(e1071)
-model <- svm(as.factor(y) ~ x1 + x2, data, kernel = "linear", cost = 0.01)
-svm.pred <- predict(svm, data)
+model1 <- svm(as.factor(y) ~ x1 + x2, data, kernel = "linear", cost = 0.1)
+svm.pred <- predict(model1, data)
 data5 <- data[svm.pred == 1, ]
 data6 <- data[svm.pred == 0, ]
 plot(data5$x1, data5$x2, col = "blue", xlab = "X1", ylab = "X2", pch = "+")
@@ -146,14 +146,19 @@ points(data6$x1, data6$x2, col = "red", pch = 4)
 ##(h)
 Fit a SVM using a non-linear kernel to the data.Obtain a class prediction for each training observation.Plot the observations,colored according to the predicted class labels.
 ```{r}
-data$y <- as.factor(data$y)
-svm_
+model2 <- svm(as.factor(y) ~ x1 + x2, data, gamma = 1)
+svm.pred1 <- predict(model2, data)
+data7 <- data[svm.pred1 == 1, ]
+data8 <- data[svm.pred1 == 0, ]
+plot(data7$x1, data7$x2, col = "blue", xlab = "X1", ylab = "X2", pch = "+")
+points(data8$x1, data8$x2, col = "red", pch = 4)
 ```
 
 
 ##(i)
 Comment on your results.
 
+The effect of linear logistic regression on nonlinear boundary processing is poor, the effect of SVM linear kernel with small cost is good, and the effect of nonlinear logistic regression and SVM on nonlinear boundary processing is perfect.
 ### 9.7
 In this problem, you will use support vector approaches in order to predict whether a given car gets high or low gas mileage based on the Auto data set.
 ##(a)
