@@ -15,18 +15,44 @@ knitr::opts_chunk$set(echo = TRUE,out.width="0.9\\linewidth",dev="pdf",fig.align
 In this problem, you will perform K-means clustering manually, with K = 2, on a small example with n = 6 observations and p = 2 features. The observations are as follows.
 
 ![my answer](/Users/christinasun/Desktop/MA679/Assignment/12.3.png)
-
 ##(a)
 Plot the observations.
+```{r}
+x <- cbind(c(1,1,0,5,6,4), c(4,3,4,1,2,0))
+plot(x[,1], x[,2])
+```
 
 ##(b)
 Randomly assign a cluster label to each observation. You can use the sample() command in R to do this. Report the cluster labels for each observation.
+```{r}
+set.seed(2022)
+label <- sample(2, nrow(x), replace = T)
+label
+```
+```{r}
+plot(x[, 1], x[, 2], col = (label + 1), pch = 16, cex = 2)
+```
 
 ##(c)
 Compute the centroid for each cluster.
+```{r}
+centroid_green <- c(mean(x[label == 1, 1]), mean(x[label == 1, 2]))
+centroid_red <- c(mean(x[label == 2, 1]), mean(x[label == 2, 2]))
+plot(x[,1], x[,2], col = (label + 1), pch = 16, cex = 2)
+points(centroid_green[1], centroid_green[2], col = 2, pch = 6)
+points(centroid_red[1], centroid_red[2], col = 3, pch = 6)
+```
+Manually, I compute the centroid for green cluster with $\bar x_{11}=\frac{1}{3}(0+1+4)=\frac{5}{3}$ and $\bar x_{12}=\frac{1}{3}(0+4+4)=\frac{3}{8}$.Also for the red cluster, $\bar x_{21}=\frac{1}{3}(1+5+6)=4$ and $\bar x_{22}=\frac{1}{3}(3+1+2)=2$.
 
 ##(d)
 Assign each observation to the centroid to which it is closest, in terms of Euclidean distance. Report the cluster labels for each observation.
+```{r}
+labels <- c(2,2,2,1,1,1)
+plot(x[,1], x[,2], col = (labels + 1), pch = 16, cex = 2)
+points(centroid_green[1], centroid_green[2], col = 2, pch = 6)
+points(centroid_red[1], centroid_red[2], col = 3, pch = 6)
+```
+
 
 ##(e)
 Repeat (c) and (d) until the answers obtained stop changing.
