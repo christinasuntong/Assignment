@@ -56,12 +56,37 @@ points(centroid_red[1], centroid_red[2], col = 3, pch = 6)
 
 ##(e)
 Repeat (c) and (d) until the answers obtained stop changing.
+```{r}
+centroid1 <- c(mean(x[label == 1, 1]), mean(x[label == 1, 2]))
+centroid2 <- c(mean(x[label == 2, 1]), mean(x[label == 2, 2]))
+plot(x[,1], x[,2], col = (label + 1), pch = 16, cex = 2)
+points(centroid1[1], centroid1[2], col = 2, pch = 6)
+points(centroid2[1], centroid2[2], col = 3, pch = 6)
+
+labels <- c(2,2,2,1,1,1)
+plot(x[,1], x[,2], col = (labels + 1), pch = 16, cex = 2)
+points(centroid1[1], centroid1[2], col = 2, pch = 6)
+points(centroid2[1], centroid2[2], col = 3, pch = 6)
+```
+The algorithm is terminated at this step.
 
 ##(f)
 In your plot from (a), color the observations according to the cluster labels obtained.
+```{r}
+plot(x[, 1], x[, 2], col = (labels + 1), pch = 16, cex = 2)
+```
 
 ### 12.5
 In words, describe the results that you would expect if you performed K-means clustering of the eight shoppers in Figure 12.16, on the basis of their sock and computer purchases, with K = 2. Give three answers, one for each of the variable scalings displayed. Explain.
+
+If we take into consideration the unscaled variables, the number of socks plays a larger role than the number of computers, so we have the clusters{1,2,7,8}(least socks and computer) and {3,4,5,6}(more socks and computer).
+```{r}
+socks <- c(8, 11, 7, 6, 5, 6, 7, 8)
+computers <- c(0, 0, 0, 0, 1, 1, 1, 1)
+x <- cbind(socks, computers)
+labels <- c(1, 1, 2, 2, 2, 2, 1, 1)
+plot(x[, 1], x[, 2], col = (labels + 1), pch = 16, cex = 2, asp = 1)
+```
 
 ### 12.8
 In Section 12.2.3, a formula for calculating PVE was given in Equation 12.10. We also saw that the PVE can be obtained using the sdev output of the prcomp() function.
