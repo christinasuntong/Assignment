@@ -109,10 +109,12 @@ pr.var <- pr.out$sdev^2
 pve <- pr.var / sum(pr.var)
 sum(pr.var)
 ```
+From the Section 12.2.3 in the textbook, I found that the variables have vastly different variances : the UrbanPop variable measures the percentage of the population in each state living in an urban area, which is not a comparable number to the number of rapes om each state per 100,000 individuals. If we failed to scale the variables before performing PCA, then most of the principal components that we observed would be driven by the Assault variable, since it has by far the largest mean and variance. Thus, it's important to standardize the variables to have mean zero and standard deviation one before performing PCA. By default, the "prcomp()" function centers the variables to have mean zero. By using the option "scale = TRUE", I scale the variables to have standard deviation one. Then the variance explained by each principal component is obtained by squaring these. To  compute the PVE by each principal component, I simply divide the variance explained by each principal component by the total variance explained by all four principal components.
 
 ```{r}
 pve
 ```
+I find that the first principal component explains 62.0% of the variance in the data, the next principal component explains 24.7% of the variance, the third principal component explains 8.9% of the variance, and the last principal component explains 4.3% of the variance.
 
 ##(b)
 By applying Equation 12.10 directly. That is, use the "prcomp()" function to compute the principal component loadings. Then, use those loadings in Equation 12.10 to obtain the PVE.
@@ -122,6 +124,7 @@ USArrests2 <- scale(USArrests)
 sumvar <- sum(apply(as.matrix(USArrests2)^2, 2, sum))
 apply((as.matrix(USArrests2) %*% loadings)^2, 2, sum) / sumvar
 ```
+The "rotation" matrix provides the principal component loadings; each column of "pr.out$rotation" contains the corresponding principal component loading vector.
 
 ### 12.9
 Consider the "USArrests" data. We will now perform hierarchical clustering on the states.
