@@ -17,25 +17,25 @@ In this problem, you will perform K-means clustering manually, with K = 2, on a 
 ![my answer](/Users/christinasun/Desktop/MA679/Assignment/12.3.png)
 ##(a)
 Plot the observations.
-```{r}
+```{r echo=FALSE}
 x <- cbind(c(1,1,0,5,6,4), c(4,3,4,1,2,0))
 plot(x[,1], x[,2])
 ```
 
 ##(b)
 Randomly assign a cluster label to each observation. You can use the sample() command in R to do this. Report the cluster labels for each observation.
-```{r}
+```{r echo=FALSE}
 set.seed(2022)
 label <- sample(2, nrow(x), replace = T)
 label
 ```
-```{r}
+```{r echo=FALSE}
 plot(x[, 1], x[, 2], col = (label + 1), pch = 16, cex = 2)
 ```
 
 ##(c)
 Compute the centroid for each cluster.
-```{r}
+```{r echo=FALSE}
 centroid_green <- c(mean(x[label == 1, 1]), mean(x[label == 1, 2]))
 centroid_red <- c(mean(x[label == 2, 1]), mean(x[label == 2, 2]))
 plot(x[,1], x[,2], col = (label + 1), pch = 16, cex = 2)
@@ -46,7 +46,7 @@ Manually, I compute the centroid for green cluster with $\bar x_{11}=\frac{1}{3}
 
 ##(d)
 Assign each observation to the centroid to which it is closest, in terms of Euclidean distance. Report the cluster labels for each observation.
-```{r}
+```{r echo=FALSE}
 labels <- c(2,2,2,1,1,1)
 plot(x[,1], x[,2], col = (labels + 1), pch = 16, cex = 2)
 points(centroid_green[1], centroid_green[2], col = 2, pch = 6)
@@ -56,7 +56,7 @@ points(centroid_red[1], centroid_red[2], col = 3, pch = 6)
 
 ##(e)
 Repeat (c) and (d) until the answers obtained stop changing.
-```{r}
+```{r echo=FALSE}
 centroid1 <- c(mean(x[label == 1, 1]), mean(x[label == 1, 2]))
 centroid2 <- c(mean(x[label == 2, 1]), mean(x[label == 2, 2]))
 plot(x[,1], x[,2], col = (label + 1), pch = 16, cex = 2)
@@ -72,7 +72,7 @@ The algorithm is terminated at this step.
 
 ##(f)
 In your plot from (a), color the observations according to the cluster labels obtained.
-```{r}
+```{r echo=FALSE}
 plot(x[, 1], x[, 2], col = (labels + 1), pch = 16, cex = 2)
 ```
 
@@ -80,7 +80,7 @@ plot(x[, 1], x[, 2], col = (labels + 1), pch = 16, cex = 2)
 In words, describe the results that you would expect if you performed K-means clustering of the eight shoppers in Figure 12.16, on the basis of their sock and computer purchases, with K = 2. Give three answers, one for each of the variable scalings displayed. Explain.
 
 If we take into consideration the unscaled variables, the number of socks plays a larger role than the number of computers, so we have the clusters{1,2,7,8}(least socks and computer) and {3,4,5,6}(more socks and computer).
-```{r}
+```{r echo=FALSE}
 socks <- c(8, 11, 7, 6, 5, 6, 7, 8)
 computers <- c(0, 0, 0, 0, 1, 1, 1, 1)
 x <- cbind(socks, computers)
@@ -88,12 +88,12 @@ labels <- c(1, 1, 2, 2, 2, 2, 1, 1)
 plot(x[, 1], x[, 2], col = (labels + 1), pch = 16, cex = 2, asp = 1)
 ```
 If we take into consideration the scaled variables, the number of computers plays a much larger role than the number of socks, so we have the clusters{5, 6, 7, 8}(purchased computer) and {1, 2, 3, 4}(no computer purchased).
-```{r}
+```{r echo=FALSE}
 x <- cbind(scale(socks, center = FALSE), scale(computers, center = FALSE))
 sd(computers)
 ```
 
-```{r}
+```{r echo=FALSE}
 labels <- c(1, 1, 2, 2, 2, 2, 1, 1)
 plot(x[, 1], x[, 2], col = (labels + 1), pch = 16, cex = 2, asp = 1)
 ```
@@ -103,7 +103,7 @@ In Section 12.2.3, a formula for calculating PVE was given in Equation 12.10. We
 On the "USArrests" data, calculate PVE in two ways:
 ##(a)
 Using the "sdev" output of the "prcomp()" function, as was done in Section 12.2.3.
-```{r}
+```{r echo=FALSE}
 pr.out <- prcomp(USArrests, scale = TRUE)
 pr.var <- pr.out$sdev^2
 pve <- pr.var / sum(pr.var)
@@ -111,14 +111,14 @@ sum(pr.var)
 ```
 From the Section 12.2.3 in the textbook, I found that the variables have vastly different variances : the UrbanPop variable measures the percentage of the population in each state living in an urban area, which is not a comparable number to the number of rapes om each state per 100,000 individuals. If we failed to scale the variables before performing PCA, then most of the principal components that we observed would be driven by the Assault variable, since it has by far the largest mean and variance. Thus, it's important to standardize the variables to have mean zero and standard deviation one before performing PCA. By default, the "prcomp()" function centers the variables to have mean zero. By using the option "scale = TRUE", I scale the variables to have standard deviation one. Then the variance explained by each principal component is obtained by squaring these. To  compute the PVE by each principal component, I simply divide the variance explained by each principal component by the total variance explained by all four principal components.
 
-```{r}
+```{r echo=FALSE}
 pve
 ```
 I find that the first principal component explains 62.0% of the variance in the data, the next principal component explains 24.7% of the variance, the third principal component explains 8.9% of the variance, and the last principal component explains 4.3% of the variance.
 
 ##(b)
 By applying Equation 12.10 directly. That is, use the "prcomp()" function to compute the principal component loadings. Then, use those loadings in Equation 12.10 to obtain the PVE.
-```{r}
+```{r echo=FALSE}
 loadings <- pr.out$rotation
 USArrests2 <- scale(USArrests)
 sumvar <- sum(apply(as.matrix(USArrests2)^2, 2, sum))
@@ -130,7 +130,7 @@ The "rotation" matrix provides the principal component loadings; each column of 
 Consider the "USArrests" data. We will now perform hierarchical clustering on the states.
 ##(a)
 Using hierarchical clustering with complete linkage and Euclidean distance, cluster the states.
-```{r}
+```{r echo=FALSE}
 set.seed(2022)
 hc.complete <- hclust(dist(USArrests), method = "complete")
 plot(hc.complete, main = "Complete Linkage", xlab = "", sub = "", cex = .9)
@@ -139,14 +139,14 @@ The 'hclust()' function implements hierarchical clustering in R. Here I use the 
 
 ##(b)
 Cut the dendrogram at a height that results in three distinct clusters. Which states belong to which clusters?
-```{r}
+```{r echo=FALSE}
 cutree(hc.complete, 3)
 ```
 To determine the cluster labels for each observation associated with a given cut of the dendrogram, I use the 'cutree()' function. The second argument to 'cutree()' is the number of clusters we wish to obtain. For this question, I set it to 3. And for this data, complete linkage generally separate the observations into their correct groups.
 
 ##(c)
 Hierarchically cluster the states using complete linkage and Euclidean distance, after scaling the variables to have standard deviation one.
-```{r}
+```{r echo=FALSE}
 sd.data <- scale(USArrests)
 hc.complete.sd <- hclust(dist(sd.data), method = "complete")
 plot(hc.complete.sd, main = "Hierarchical Clustering with Scaled Features")
@@ -155,7 +155,7 @@ To scale the variables before performing hierarchical clusering of the observati
 
 ##(d)
 What effect does scaling the variables have on the hierarchical clustering obtained? In your opinion, should the variables be scaled before the inter-observation dissimilarities are computed? Provide a justification for your answer.
-```{r}
+```{r echo=FALSE}
 cutree(hc.complete.sd, 3)
 ```
 ```{r}
@@ -167,7 +167,7 @@ Scaling the variables affect the clusters obtained although the trees are simila
 In this problem, you will generate simulated data, and then perform PCA and K-means clustering on the data.
 ##(a)
 Generate a simulated data set with 20 observations in each of three classes (i.e. 60 observations total), and 50 variables.
-```{r}
+```{r echo=FALSE}
 set.seed(2022)
 x <- matrix(rnorm(20 * 3 * 50, mean = 0, sd = 0.001), ncol = 50)
 x[1:20, 2] <- 1
@@ -179,14 +179,14 @@ true.labels <- c(rep(1, 20), rep(2, 20), rep(3, 20))
 
 ##(b)
 Perform PCA on the 60 observations and plot the first two principal component score vectors. Use a different color to indicate the observations in each of the three classes. If the three classes appear separated in this plot, then continue on to part (c). If not, then return to part (a) and modify the simulation so that there is greater separation between the three classes. Do not continue to part (c) until the three classes show at least some separation in the first two principal component score vectors.
-```{r}
+```{r echo=FALSE}
 pr.out <- prcomp(x)
 plot(pr.out$x[, 1:2], col = 1:3, xlab = "Z1", ylab = "Z2", pch = 20)
 ```
 
 ##(c)
 Perform K-means clustering of the observations with K = 3.How well do the clusters that you obtained in K-means clustering compare to the true class labels?
-```{r}
+```{r echo=FALSE}
 km.out.1 <- kmeans(x, 3, nstart = 20)
 table(true.labels, km.out.1$cluster)
 ```
@@ -194,7 +194,7 @@ The observations are perfectly clustered.
 
 ##(d)
 Perform K-means clustering with K = 2. Describe your results.
-```{r}
+```{r echo=FALSE}
 km.out.2 <- kmeans(x, 2, nstart = 20)
 table(true.labels, km.out.2$cluster)
 ```
@@ -202,7 +202,7 @@ All observations of one of the three clusters is now absorbed in one of the two 
 
 ##(e)
 Now perform K-means clustering with K = 4, and describe your results.
-```{r}
+```{r echo=FALSE}
 km.out.3 <- kmeans(x, 4, nstart = 20)
 table(true.labels, km.out.3$cluster)
 ```
@@ -210,7 +210,7 @@ The second cluster is splitted into two clusters.
 
 ##(f)
 Now perform K-means clustering with K = 3 on the first two principal component score vectors, rather than on the raw data.That is, perform K-means clustering on the 60 × 2 matrix of which the first column is the first principal component score vector, and the second column is the second principal component score vector. Comment on the results.
-```{r}
+```{r echo=FALSE}
 km.out.4 <- kmeans(pr.out$x[, 1:2], 3, nstart = 20)
 table(true.labels, km.out.4$cluster)
 ```
@@ -218,7 +218,7 @@ All observations are perfectly clustered once again.
 
 ##(g)
 Using the scale() function, perform K-means clustering with K = 3 on the data after scaling each variable to have standard deviation one. How do these results compare to those obtained in (b)? Explain.
-```{r}
+```{r echo=FALSE}
 km.out.5 <- kmeans(scale(x), 3, nstart = 20)
 table(true.labels, km.out.5$cluster)
 ```
