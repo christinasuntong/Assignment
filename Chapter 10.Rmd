@@ -1,0 +1,134 @@
+---
+title: "Chapter 10"
+author: "Tong Sun"
+date: "4/9/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###10.1
+Consider a neural network with two hidden layers: p = 4 input units, 2 units in the first hidden layer, 3 units in the second hidden layer, and a single output.
+##(a)
+Draw a picture of the network, similar to Figures 10.1 or 10.4.
+##(b)
+Write out an expression for f(X), assuming ReLU activation functions. Be as explicit as you can!
+##(c)
+Now plug in some values for the coefficients and write out the value of f(X).
+##(d)
+How many parameters are there?
+
+![my answer](/Users/christinasun/Desktop/MA679/Assignment/10.1.jpeg)
+###10.6
+Consider the simple function $R(\beta)$ = $sin(\beta)$ + $\frac{\beta}{10}$.
+##(a)
+Draw a graph of this function over the range $-6<= \beta <=6$.
+```{r}
+library(ggplot2)
+eq <- function(x){sin(x) + x/10}
+base <- ggplot() + xlim(-6,6)
+base + geom_function(fun = eq)
+```
+
+##(b)
+What is the derivative of this function?
+```{r}
+f = expression(sin(x) + x/10)
+D(f,'x')
+```
+
+##(c)
+Given $\beta^{0}=2.3$, run gradient descent to find a local minimum
+of $R(\beta)$ using a learning rate of $\rho$ = 0.1. Show each of $\beta^{0}$,$\beta^{1}$,...in your plot, as well as the final answer.
+```{r}
+library(dplyr)
+library(magrittr)
+cost <- function(x){cos(x) + 1/10}
+# gradient descent implementation
+grad <- function(x = 2.3, rho = 0.1, j = 1000){
+  xtrace <- x
+  ftrace <- f(x)
+  
+  for (i in 1:j){
+    x <- x - rho * cost(x)
+    
+    xtrace <- c(xtrace, x)
+    ftrace <- c(ftrace, f(x))
+  }
+  data.frame("x" = xtrace, "f_x" = ftrace)
+}
+# plot the function
+xs <- seq(0,4,len = 100) # create some values
+# define the function we want to optimize
+f <- function(x){
+  sin(x) + x/10
+}
+create_plot <- function(title){
+  plot(
+    ylim = c(-2,2),
+    x = xs,
+    y = f(xs),
+    type = "l",
+    ylab = expression(sin(x) + x/10),
+    xlab = "x",
+    main = title
+  )
+}
+# plot with gradient descent algorithm
+create_plot(expression(rho))
+
+with(
+  rho_too_low <- grad(
+    x = 2.3, # initialization of x
+    rho = 0.1, # learning rate
+    j = 100 # iterations
+  ),
+  points(
+    x,
+    f_x,
+    type = "b",
+    col = "green"
+  )
+)
+```
+
+##(d)
+Repeat with $\beta^{0} = 1.4$.
+```{r}
+grad_1 <- function(x = 1.4, rho = 0.1, j = 1000){
+  xtrace <- x
+  ftrace <- f(x)
+  
+  for (i in 1:j){
+    x <- x - rho * cost(x)
+    
+    xtrace <- c(xtrace, x)
+    ftrace <- c(ftrace, f(x))
+  }
+  data.frame("x" = xtrace, "f_x" = ftrace)
+}
+
+create_plot(expression(rho))
+
+with(
+  rho_too_low <- grad_1(
+    x = 1.4, # initialization of x
+    rho = 0.1, # learning rate
+    j = 100 # iterations
+  ),
+  points(
+    x,
+    f_x,
+    type = "b",
+    col = "blue"
+  )
+)
+```
+
+###10.7
+Fit a neural network to the Default data. Use a single hidden layer with 10 units, and dropout regularization. Have a look at Labs 10.9.1–10.9.2 for guidance. Compare the classification performance of your model with that of linear logistic regression.
+
+###10.8
+###10.13
